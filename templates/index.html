@@ -211,60 +211,59 @@
         </div>
     </main>
 
-    <section class="shelf-container">
-        <h2 class="shelf-heading">Trending Bollywood</h2>
-        <div class="movie-grid">
-            {% for item in bollywood %}
-            <div class="movie-card" onclick="playMedia('{{ item.id }}', '{{ item.type }}', `{{ item.title }}`, '{{ item.year }}', '{{ item.embed_url }}')">
-                <div class="poster-frame" style="background-image: url('{{ item.poster }}')"></div>
-                <div class="card-details">
-                    <div class="card-title">{{ item.title }}</div>
-                    <div class="card-sub">
-                        <span>{{ item.year }}</span>
-                        <span style="color:var(--accent);">1080p HD</span>
-                    </div>
+      <section class="shelf-container">
+    <h2 class="shelf-heading">Hollywood Movies</h2>
+    <div class="movie-grid">
+        {% for item in hollywood %}
+        <div class="movie-card" onclick="playMedia('{{ item.id }}', '{{ item.type }}', `{{ item.title }}`, '{{ item.year }}', '{{ item.embed_url }}')">
+            <div class="poster-frame" style="background-image: url('{{ item.poster }}'); background-size: cover; background-position: center;"></div>
+            <div class="card-details">
+                <div class="card-title">{{ item.title }}</div>
+                <div class="card-sub">
+                    <span>{{ item.year }}</span>
+                    <span style="color:var(--accent);">1080p HD</span>
                 </div>
             </div>
-            {% endfor %}
         </div>
-    </section>
+        {% endfor %}
+    </div>
+</section>
 
-    <section class="shelf-container">
-        <h2 class="shelf-heading">Blockbuster Hollywood</h2>
-        <div class="movie-grid">
-            {% for item in hollywood %}
-            <div class="movie-card" onclick="playMedia('{{ item.id }}', '{{ item.type }}', `{{ item.title }}`, '{{ item.year }}', '{{ item.embed_url }}')">
-                <div class="poster-frame" style="background-image: url('{{ item.poster }}')"></div>
-                <div class="card-details">
-                    <div class="card-title">{{ item.title }}</div>
-                    <div class="card-sub">
-                        <span>{{ item.year }}</span>
-                        <span style="color:var(--accent);">1080p HD</span>
-                    </div>
+<section class="shelf-container">
+    <h2 class="shelf-heading">Hollywood Popular Series</h2>
+    <div class="movie-grid">
+        {% for item in anime %}
+        <div class="movie-card" onclick="playMedia('{{ item.id }}', '{{ item.type }}', `{{ item.title }}`, '{{ item.year }}', '{{ item.embed_url }}')">
+            <div class="poster-frame" style="background-image: url('{{ item.poster }}'); background-size: cover; background-position: center;"></div>
+            <div class="card-details">
+                <div class="card-title">{{ item.title }}</div>
+                <div class="card-sub">
+                    <span>{{ item.year }}</span>
+                    <span style="color:#00e5ff;">1080p HD</span>
                 </div>
             </div>
-            {% endfor %}
         </div>
-    </section>
+        {% endfor %}
+    </div>
+</section>
 
-    <section class="shelf-container">
-        <h2 class="shelf-heading">Anime Universe</h2>
-        <div class="movie-grid">
-            {% for item in anime %}
-            <div class="movie-card" onclick="playMedia('{{ item.id }}', '{{ item.type }}', `{{ item.title }}`, '{{ item.year }}', '{{ item.embed_url }}')">
-                <div class="poster-frame" style="background-image: url('{{ item.poster }}')"></div>
-                <div class="card-details">
-                    <div class="card-title">{{ item.title }}</div>
-                    <div class="card-sub">
-                        <span>{{ item.year }}</span>
-                        <span style="color:#00e5ff;">1080p HD</span>
-                    </div>
+<section class="shelf-container">
+    <h2 class="shelf-heading">Trending Bollywood</h2>
+    <div class="movie-grid">
+        {% for item in bollywood %}
+        <div class="movie-card" onclick="playMedia('{{ item.id }}', '{{ item.type }}', `{{ item.title }}`, '{{ item.year }}', '{{ item.embed_url }}')">
+            <div class="poster-frame" style="background-image: url('{{ item.poster }}'); background-size: cover; background-position: center;"></div>
+            <div class="card-details">
+                <div class="card-title">{{ item.title }}</div>
+                <div class="card-sub">
+                    <span>{{ item.year }}</span>
+                    <span style="color:var(--accent);">1080p HD</span>
                 </div>
             </div>
-            {% endfor %}
         </div>
-    </section>
-
+        {% endfor %}
+    </div>
+</section>
     <script>
         let currentShowId = null;
         let activeSeasonNum = 1;
