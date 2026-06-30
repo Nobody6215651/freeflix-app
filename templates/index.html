@@ -23,7 +23,7 @@
             <h1 class="hero-title">Disclosure Day</h1>
             <p class="hero-synopsis">Experience the ultimate thrilling cinematic masterpiece of the year. Secrets will be exposed, and the truth will reshape the global order forever.</p>
             <div class="hero-buttons">
-                <button class="btn-play">▶ Play</button>
+                <button class="btn-play" onclick="scrollToPlayer()">▶ Play</button>
                 <button class="btn-info">ℹ More Info</button>
             </div>
         </div>
@@ -31,79 +31,69 @@
     </section>
 
     <main class="main-layout">
+
+        <div class="player-section-title" style="margin-bottom: 15px; color: #e5e5e5; font-size: 20px; font-weight: 700;">Now Playing</div>
+        <div class="player-container">
+            <iframe id="mainPlayer" src="{{ hollywood[0].embed_url if hollywood else (bollywood[0].embed_url if bollywood else '') }}" allowfullscreen allow="autoplay; encrypted-media; picture-in-picture"></iframe>
+        </div>
         
         <div class="movie-carousel-section">
             <h2 class="row-title">Hollywood Blockbusters</h2>
             <div class="carousel-wrapper">
                 <div class="movie-row">
                     
-                    <div class="movie-card">
-                        <img src="https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=500" alt="Movie Poster">
+                    {% for movie in hollywood %}
+                    <div class="movie-card" onclick="loadMovie('{{ movie.embed_url }}')">
+                        <img src="{{ movie.poster_url if movie.poster_url else 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=500' }}" alt="{{ movie.title }}">
                         <div class="card-hover-details">
                             <div class="card-actions">
                                 <button class="action-circle btn-accent">▶</button>
                                 <button class="action-circle">+</button>
                                 <button class="action-circle">👍</button>
                             </div>
+                            <div class="movie-card-title" style="font-weight:700; font-size:14px; margin-bottom:5px; color:#fff;">{{ movie.title }}</div>
                             <div class="card-meta">
                                 <span class="match-pct">98% Match</span>
                                 <span class="age-rating">18+</span>
-                                <span class="duration">2h 15m</span>
+                                <span class="duration">2h 12m</span>
                             </div>
-                            <div class="card-genres">Action • Sci-Fi • Thriller</div>
+                            <div class="card-genres">Action • Sci-Fi</div>
                         </div>
                     </div>
+                    {% else %}
+                    <p style="color: #666; padding: 10px;">No Hollywood movies found in database.</p>
+                    {% endfor %}
 
-                    <div class="movie-card">
-                        <img src="https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=500" alt="Movie Poster">
+                </div>
+            </div>
+        </div>
+
+        <div class="movie-carousel-section">
+            <h2 class="row-title">Bollywood Hits</h2>
+            <div class="carousel-wrapper">
+                <div class="movie-row">
+                    
+                    {% for movie in bollywood %}
+                    <div class="movie-card" onclick="loadMovie('{{ movie.embed_url }}')">
+                        <img src="{{ movie.poster_url if movie.poster_url else 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=500' }}" alt="{{ movie.title }}">
                         <div class="card-hover-details">
                             <div class="card-actions">
                                 <button class="action-circle btn-accent">▶</button>
                                 <button class="action-circle">+</button>
                                 <button class="action-circle">👍</button>
                             </div>
+                            <div class="movie-card-title" style="font-weight:700; font-size:14px; margin-bottom:5px; color:#fff;">{{ movie.title }}</div>
                             <div class="card-meta">
                                 <span class="match-pct">95% Match</span>
                                 <span class="age-rating">13+</span>
-                                <span class="duration">1h 58m</span>
+                                <span class="duration">2h 45m</span>
                             </div>
-                            <div class="card-genres">Drama • Mystery • Romance</div>
+                            <div class="card-genres">Drama • Romance • Action</div>
                         </div>
                     </div>
-
-                    <div class="movie-card">
-                        <img src="https://images.unsplash.com/photo-1578328819058-b69f3a3b0f6s?q=80&w=500" alt="Movie Poster">
-                        <div class="card-hover-details">
-                            <div class="card-actions">
-                                <button class="action-circle btn-accent">▶</button>
-                                <button class="action-circle">+</button>
-                                <button class="action-circle">👍</button>
-                            </div>
-                            <div class="card-meta">
-                                <span class="match-pct">92% Match</span>
-                                <span class="age-rating">16+</span>
-                                <span class="duration">2 Seasons</span>
-                            </div>
-                            <div class="card-genres">Crime • Thriller • Suspense</div>
-                        </div>
-                    </div>
-
-                    <div class="movie-card">
-                        <img src="https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=500" alt="Movie Poster">
-                        <div class="card-hover-details">
-                            <div class="card-actions">
-                                <button class="action-circle btn-accent">▶</button>
-                                <button class="action-circle">+</button>
-                                <button class="action-circle">👍</button>
-                            </div>
-                            <div class="card-meta">
-                                <span class="match-pct">99% Match</span>
-                                <span class="age-rating">18+</span>
-                                <span class="duration">2h 42m</span>
-                            </div>
-                            <div class="card-genres">Fantasy • Adventure</div>
-                        </div>
-                    </div>
+                    {% else %}
+                    <p style="color: #666; padding: 10px;">No Bollywood movies found in database.</p>
+                    {% endfor %}
 
                 </div>
             </div>
