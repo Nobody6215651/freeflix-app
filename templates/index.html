@@ -28,18 +28,16 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* --- NETFLIX HEADER COMPACT BRANDING --- */
         .navbar {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 16px 4%;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, transparent 100%);
-            position: sticky; top: 0; z-index: 1000;
+            padding: 20px 4%;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, transparent 100%);
         }
 
         .brand-logo {
-            font-size: 1.7rem;
+            font-size: 1.8rem;
             font-weight: 900;
             text-transform: uppercase;
             color: #fff;
@@ -49,34 +47,62 @@
         }
         .brand-logo span { color: var(--accent); }
 
-        .search-container { position: relative; width: 100%; max-width: 320px; }
-        .search-box {
-            width: 100%; padding: 10px 18px;
-            background: rgba(0, 0, 0, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 4px; color: #fff;
-            font-family: inherit; font-size: 0.85rem;
+        /* --- THE GLOWING RED CENTRAL SEARCH CONTEXT --- */
+        .hero-search-wrapper {
+            max-width: 700px;
+            margin: 40px auto 20px auto;
+            padding: 0 4%;
+            text-align: center;
         }
-        .search-box:focus { outline: none; border-color: var(--accent); }
+        
+        .search-container { position: relative; width: 100%; }
+        
+        .search-box {
+            width: 100%; padding: 16px 26px;
+            background: #000000;
+            border: 2px solid #330011;
+            border-radius: 50px; color: #fff;
+            font-family: inherit; font-size: 1.05rem;
+            font-weight: 500;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        }
+        
+        /* Vibrant Red Premium Neon Glow on Active/Focus Click */
+        .search-box:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: #0a0003;
+            box-shadow: 0 0 25px rgba(255, 0, 85, 0.8), inset 0 0 8px rgba(255, 0, 85, 0.3);
+        }
 
         .suggestions-panel {
-            position: absolute; top: 100%; left: 0; width: 100%;
+            position: absolute; top: calc(100% + 10px); left: 0; width: 100%;
             background: var(--netflix-card); border: 1px solid var(--border);
-            border-radius: 4px; overflow: hidden; display: none; z-index: 1100;
+            border-radius: 12px; overflow: hidden; display: none; z-index: 1100;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.8);
         }
-        .suggestion-item { padding: 12px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.85rem; }
-        .suggestion-item:hover { background: rgba(255, 0, 85, 0.15); }
+        .suggestion-item { padding: 14px 20px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.9rem; text-align: left;}
+        .suggestion-item:hover { background: rgba(255, 0, 85, 0.2); }
 
-        /* --- THEATER LAYOUT STABILITY --- */
+        /* --- DYNAMIC THEATER AREA (HIDDEN BY DEFAULT FOR FOCUS ENGINE) --- */
         .main-layout {
-            max-width: 1400px; margin: 20px auto; padding: 0 4%;
-            display: flex; flex-direction: column; gap: 20px;
+            max-width: 1400px; margin: 0 auto; padding: 0 4%;
+            display: none; flex-direction: column; gap: 20px;
+            transform: scale(0.98); opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        /* Active Focus Highlight Rule */
+        .main-layout.focused-active {
+            display: flex; transform: scale(1); opacity: 1;
+            padding: 15px 4%; border-radius: 16px;
+            background: linear-gradient(180deg, rgba(255, 0, 85, 0.04) 0%, transparent 100%);
         }
 
         .video-container {
             position: relative; padding-bottom: 56.25%; height: 0;
             overflow: hidden; border-radius: 12px; background: #000;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.7);
+            box-shadow: 0 0 35px rgba(255, 0, 85, 0.15);
         }
         .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
 
@@ -85,10 +111,11 @@
             border-radius: 12px; padding: 24px; margin-bottom: 20px;
         }
         .active-title { font-size: 1.8rem; font-weight: 900; margin-bottom: 8px; }
-        .meta-line { font-size: 0.85rem; color: var(--text-muted); display: flex; gap: 12px; align-items: center; }
+        .meta-line { font-size: 0.88rem; color: var(--text-muted); display: flex; gap: 12px; align-items: center; }
         .type-badge { background: var(--accent); color: white; padding: 2px 8px; border-radius: 4px; font-weight: 700; }
+        .quality-tag-fixed { color: #00e5ff; font-weight: 700; }
 
-        /* --- REAL-TIME EPISODE & SEASON CONTROL DECK --- */
+        /* --- EPISODE MATRIX DECK --- */
         .series-control-deck {
             margin-top: 20px; padding-top: 20px;
             border-top: 1px solid rgba(255,255,255,0.05);
@@ -102,37 +129,33 @@
             cursor: pointer; width: fit-content; min-width: 160px; outline: none;
         }
 
-        .episode-scroll-grid {
-            display: flex; flex-wrap: wrap; gap: 10px; max-height: 220px;
-            overflow-y: auto; padding-right: 5px;
-        }
+        .episode-scroll-grid { display: flex; flex-wrap: wrap; gap: 10px; max-height: 220px; overflow-y: auto; }
         .episode-pill {
             background: rgba(255, 255, 255, 0.06); border: 1px solid transparent;
             color: #fff; padding: 10px 18px; border-radius: 6px; cursor: pointer;
             font-size: 0.85rem; font-weight: 700; min-width: 75px; text-align: center;
-            transition: all 0.2s ease;
         }
         .episode-pill:hover { background: rgba(255, 255, 255, 0.15); }
         .episode-pill.active-ep { background: var(--accent); border-color: var(--accent); color: #fff; }
 
-        /* --- NETFLIX 16:9 RECTANGULAR CARD SHELVES --- */
-        .shelf-container { max-width: 1400px; margin: 35px auto; padding: 0 4%; }
+        /* --- CINEMATIC NETFLIX ROWS --- */
+        .shelf-container { max-width: 1400px; margin: 40px auto; padding: 0 4%; }
         .shelf-heading { font-size: 1.3rem; font-weight: 700; margin-bottom: 15px; letter-spacing: -0.5px; }
         
         .movie-grid { 
             display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); 
-            gap: 16px; 
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); 
+            gap: 18px; 
         }
 
         .movie-card {
             background: var(--netflix-card); border-radius: 6px; overflow: hidden;
-            cursor: pointer; transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+            cursor: pointer; transition: transform 0.25s cubic-bezier(0.25, 1, 0.5, 1);
             position: relative; border: 1px solid transparent;
+            content-visibility: auto;
         }
-        .movie-card:hover { transform: scale(1.05); z-index: 5; border-color: rgba(255,255,255,0.2); }
+        .movie-card:hover { transform: scale(1.04); border-color: rgba(255,255,255,0.2); }
         
-        /* 16:9 Landscape Aspect Ratio Box matching image_80ead2.jpg */
         .poster-frame { 
             position: relative; width: 100%; padding-top: 56.25%; 
             background-size: cover; background-position: center; background-color: #222;
@@ -140,46 +163,46 @@
 
         .card-details { padding: 12px; }
         .card-title { font-size: 0.88rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .card-sub { font-size: 0.78rem; color: var(--text-muted); margin-top: 4px; }
+        .card-sub { font-size: 0.78rem; color: var(--text-muted); margin-top: 5px; display: flex; justify-content: space-between; }
 
-        /* --- MOBILE LAYOUT CONTROL --- */
         @media (max-width: 600px) {
-            .navbar { padding: 12px 4%; }
-            .search-container { max-width: 140px; }
-            .brand-logo { font-size: 1.3rem; }
-            .movie-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
+            .navbar { padding: 15px 4%; }
+            .brand-logo { font-size: 1.4rem; }
+            .hero-search-wrapper { margin: 20px auto; }
+            .search-box { padding: 12px 20px; font-size: 0.95rem; }
+            .movie-grid { grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: 12px; }
             .active-title { font-size: 1.3rem; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Transparent Netflix Bar Header -->
     <nav class="navbar">
         <a href="/" class="brand-logo">FREE<span>FLIX</span></a>
-        <div class="search-container">
-            <input type="text" class="search-box" placeholder="Search titles..." id="searchBox" autocomplete="off">
-            <div class="suggestions-panel" id="suggestionsPanel"></div>
-        </div>
     </nav>
 
-    <!-- Master Stage Area -->
-    <main class="main-layout">
+    <div class="hero-search-wrapper">
+        <div class="search-container">
+            <input type="text" class="search-box" placeholder="Search movies or anime series..." id="searchBox" autocomplete="off">
+            <div class="suggestions-panel" id="suggestionsPanel"></div>
+        </div>
+    </div>
+
+    <main class="main-layout" id="theaterStage">
         <div class="video-container">
-            <iframe id="mainPlayer" src="{{ all_content[0].embed_url }}" allowfullscreen></iframe>
+            <iframe id="mainPlayer" src="" allowfullscreen></iframe>
         </div>
 
         <div class="media-details">
-            <h1 class="active-title" id="activeTitle">{{ all_content[0].title }}</h1>
+            <h1 class="active-title" id="activeTitle">Loading Title</h1>
             <div class="meta-line">
-                <span class="type-badge" id="activeType">{{ all_content[0].type }}</span>
-                <span id="activeYear">{{ all_content[0].year }}</span>
-                <span>• Ultra Quality Pipeline</span>
+                <span class="type-badge" id="activeType">Movie</span>
+                <span id="activeYear">2026</span>
+                <span class="quality-tag-fixed">Available in 1080p HD</span>
             </div>
 
-            <!-- Dynamic Episode Deck Manager (Auto loads for Series) -->
             <div class="series-control-deck" id="seriesDeck">
-                <label class="season-selector-label" id="seasonLabel">Select Season</label>
+                <label class="season-selector-label">Select Season</label>
                 <select class="netflix-dropdown" id="seasonSelector" onchange="switchSeason(this.value)"></select>
                 
                 <label class="season-selector-label" style="margin-top: 10px;">Available Episodes</label>
@@ -188,7 +211,6 @@
         </div>
     </main>
 
-    <!-- BOLLYWOOD SHELF -->
     <section class="shelf-container">
         <h2 class="shelf-heading">Trending Bollywood</h2>
         <div class="movie-grid">
@@ -197,14 +219,16 @@
                 <div class="poster-frame" style="background-image: url('{{ item.poster }}')"></div>
                 <div class="card-details">
                     <div class="card-title">{{ item.title }}</div>
-                    <div class="card-sub">{{ item.year }}</div>
+                    <div class="card-sub">
+                        <span>{{ item.year }}</span>
+                        <span style="color:var(--accent);">1080p HD</span>
+                    </div>
                 </div>
             </div>
             {% endfor %}
         </div>
     </section>
 
-    <!-- HOLLYWOOD SHELF -->
     <section class="shelf-container">
         <h2 class="shelf-heading">Blockbuster Hollywood</h2>
         <div class="movie-grid">
@@ -213,14 +237,16 @@
                 <div class="poster-frame" style="background-image: url('{{ item.poster }}')"></div>
                 <div class="card-details">
                     <div class="card-title">{{ item.title }}</div>
-                    <div class="card-sub">{{ item.year }}</div>
+                    <div class="card-sub">
+                        <span>{{ item.year }}</span>
+                        <span style="color:var(--accent);">1080p HD</span>
+                    </div>
                 </div>
             </div>
             {% endfor %}
         </div>
     </section>
 
-    <!-- ANIME SHELF -->
     <section class="shelf-container">
         <h2 class="shelf-heading">Anime Universe</h2>
         <div class="movie-grid">
@@ -229,7 +255,10 @@
                 <div class="poster-frame" style="background-image: url('{{ item.poster }}')"></div>
                 <div class="card-details">
                     <div class="card-title">{{ item.title }}</div>
-                    <div class="card-sub">{{ item.year }} • Series</div>
+                    <div class="card-sub">
+                        <span>{{ item.year }}</span>
+                        <span style="color:#00e5ff;">1080p HD</span>
+                    </div>
                 </div>
             </div>
             {% endfor %}
@@ -240,8 +269,13 @@
         let currentShowId = null;
         let activeSeasonNum = 1;
 
-        // Core Click Engine with Safe Variable Routing
+        // Enhanced Click Focus Action Pipeline
         async function playMedia(id, type, title, year, embedUrl) {
+            const stage = document.getElementById('theaterStage');
+            
+            // Activate dynamic focus styles
+            stage.classList.add('focused-active');
+            
             document.getElementById('mainPlayer').src = embedUrl;
             document.getElementById('activeTitle').innerText = title;
             document.getElementById('activeType').innerText = type;
@@ -257,16 +291,17 @@
                 deck.style.display = 'none';
                 currentShowId = null;
             }
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            // Smoothly scrolls & centers the viewport target directly onto the player
+            stage.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
 
-        // Live Series Metadata Fetcher
         async function loadShowMetadata(tvId) {
             try {
                 const res = await fetch(`/api/tv-meta/${tvId}`);
                 const data = await res.json();
-                
                 const select = document.getElementById('seasonSelector');
+                
                 select.innerHTML = data.seasons.map(s => 
                     `<option value="${s.season_number}" data-epcount="${s.episode_count}">${s.name}</option>`
                 ).join('');
@@ -275,11 +310,10 @@
                     switchSeason(data.seasons[0].season_number);
                 }
             } catch (err) {
-                console.error("Meta engine failure", err);
+                console.error("Meta API error", err);
             }
         }
 
-        // Fast Episode Matrix Builder
         function switchSeason(seasonNum) {
             activeSeasonNum = seasonNum;
             const select = document.getElementById('seasonSelector');
@@ -288,7 +322,6 @@
             
             const grid = document.getElementById('episodeGrid');
             let html = '';
-            
             for (let i = 1; i <= epCount; i++) {
                 let activeClass = (i === 1) ? 'episode-pill active-ep' : 'episode-pill';
                 html += `<div class="${activeClass}" id="ep-pill-${i}" onclick="loadTargetEpisode(${i})">Ep ${i}</div>`;
@@ -296,20 +329,15 @@
             grid.innerHTML = html;
         }
 
-        // Instant Stream Injector for Selected Episode
         function loadTargetEpisode(epNum) {
-            // Remove previous active classes smoothly
             document.querySelectorAll('.episode-pill').forEach(el => el.classList.remove('active-ep'));
-            
-            // Highlight current episode pill
             const targetPill = document.getElementById(`ep-pill-${epNum}`);
             if(targetPill) targetPill.classList.add('active-ep');
             
-            // Directly load the premium episode block into the video window
             document.getElementById('mainPlayer').src = `https://vidsrc.me/embed/tv/${currentShowId}/${activeSeasonNum}-${epNum}`;
         }
 
-        // Live Synchronous Search Client
+        // Live Red Engine Input Scanner
         const searchBox = document.getElementById('searchBox');
         const panel = document.getElementById('suggestionsPanel');
 
@@ -322,17 +350,17 @@
                 const items = await res.json();
                 
                 if(items.length === 0) {
-                    panel.innerHTML = '<div class="suggestion-item" style="color:var(--text-muted)">No titles found</div>';
+                    panel.innerHTML = '<div class="suggestion-item" style="color:var(--text-muted)">No official titles found</div>';
                 } else {
                     panel.innerHTML = items.map(item => `
                         <div class="suggestion-item" onclick="triggerSearchSelect('${item.id}', '${item.type}', \`${item.title}\`, '${item.year}', '${item.embed_url}')">
-                            <strong>${item.title}</strong> (${item.year}) <span style="color:var(--accent); float:right; font-size:0.75rem;">${item.type}</span>
+                            <strong>${item.title}</strong> (${item.year}) <span style="color:var(--accent); float:right; font-size:0.78rem;">Available in 1080p HD</span>
                         </div>
                     `).join('');
                 }
                 panel.style.display = 'block';
             } catch (err) {
-                console.error("Search pipeline sync error", err);
+                console.error("Search failure", err);
             }
         });
 
