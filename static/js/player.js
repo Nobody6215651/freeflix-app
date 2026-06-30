@@ -1,35 +1,40 @@
 /**
- * PremiumFlix - Zero-Fail Explicit Router
+ * PremiumFlix - Real-time Source Hook Router
  */
 
 function switchStreamingServer(serverName, event) {
     const player = document.getElementById('mainPlayer');
-    const dataContainer = document.getElementById('playerDataContainer');
-    if (!player || !dataContainer) return;
-
-    // Direct extraction from HTML attributes (100% accurate, no regex fails)
-    let tmdbId = dataContainer.getAttribute('data-tmdb-id');
-    let mediaType = dataContainer.getAttribute('data-media-type') || 'movie';
-
-    // Fallback: Agar upar se ID khali mile toh current iframe URL se backup try karo
-    if (!tmdbId) {
-        const currentSrc = player.src;
-        const match = currentSrc.match(/(?:movie\/|tv\/|tmdb\/)([0-9]+)/);
-        if (match && match[1]) {
-            tmdbId = match[1];
-            mediaType = currentSrc.includes('/tv/') ? 'tv' : 'movie';
-        }
-    }
-
-    if (!tmdbId) {
-        console.error("TMDB ID missing.");
+    if (!player) {
+        console.error("Player iframe not found.");
         return;
     }
 
-    let isTV = (mediaType === 'tv' || mediaType === 'series');
-    let targetUrl = '';
+    const currentSrc = player.src;
+    let tmdbId = '';
+    
+    // Check if it's a TV series by looking at common URL patterns
+    let isTV = currentSrc.includes('/tv/') || currentSrc.includes('-1-1') || currentSrc.includes('/1/1');
 
-    // Precise URL Generation
+    // POWERFUL REGEX: Extracts numbers (TMDB ID) regardless of the domain structure
+    const match = currentSrc.match(/(?:movie\/|tv\/|tmdb\/)([0-9]+)/);
+    
+    if (match && match[1]) {
+        tmdbId = match[1];
+    } else {
+        // Fallback: Agar upar se na mile toh url ke aakhri numbers nikaalo
+        const fallbackMatch = currentSrc.match(/\/([0-9]+)(?:\?|$)/);
+        if (fallbackMatch && fallbackMatch[1]) {
+            tmdbId = fallbackMatch[1];
+        }
+    }
+
+    // Agar phir bhi ID na mile toh user ko alert ya console block karein
+    if (!tmdbId || tmdbId === '') {
+        console.error("Could not extract TMDB ID from: " + currentSrc);
+        return; 
+    }
+
+    let targetUrl = '';
     if (serverName === 'vidsrc') {
         targetUrl = isTV ? `https://vidsrc.me/embed/tv/${tmdbId}/1-1` : `https://vidsrc.me/embed/movie/${tmdbId}`;
     } else if (serverName === 'autoembed') {
@@ -42,7 +47,7 @@ function switchStreamingServer(serverName, event) {
         player.src = targetUrl;
     }
 
-    // Update active button classes
+    // Handle Active Button UI Color switching
     const buttons = document.querySelectorAll('.srv-btn');
     buttons.forEach(btn => btn.classList.remove('active'));
     if (event && event.currentTarget) {
@@ -50,19 +55,18 @@ function switchStreamingServer(serverName, event) {
     }
 }
 
-// Global click hook to capture when user clicks on a new movie card from home page
-window.addEventListener('message', function(event) {
-    // If your card click updates the iframe from another function, we dynamic sync here
+// Global Lifecycle Monitor: Handles reset when new movie card triggers
+document.addEventListener('DOMContentLoaded', () => {
     const player = document.getElementById('mainPlayer');
     if (player) {
-        setTimeout(() => {
-            const currentSrc = player.src;
-            const dataContainer = document.getElementById('playerDataContainer');
-            const match = currentSrc.match(/(?:movie\/|tv\/|tmdb\/)([0-9]+)/);
-            if (match && match[1] && dataContainer) {
-                dataContainer.setAttribute('data-tmdb-id', match[1]);
-                dataContainer.setAttribute('data-media-type', currentSrc.includes('/tv/') ? 'tv' : 'movie');
+        player.addEventListener('load', function() {
+            if (this.src.includes('vidsrc.me')) {
+                const buttons = document.querySelectorAll('.srv-btn');
+                buttons.forEach(btn => btn.classList.remove('active'));
+                if (buttons[0]) {
+                    buttons[0].classList.add('active');
+                }
             }
-        }, 500);
+        });
     }
 });
