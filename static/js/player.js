@@ -1,28 +1,35 @@
 /**
- * PremiumFlix - Advanced Dynamic Player & Server Router
- * Fixes Black Screen and Loading issues by re-initializing the iframe securely
+ * PremiumFlix - Zero-Fail Explicit Router
  */
 
 function switchStreamingServer(serverName, event) {
-    const playerContainer = document.querySelector('.player-container');
-    const oldPlayer = document.getElementById('mainPlayer');
-    if (!playerContainer || !oldPlayer) return;
+    const player = document.getElementById('mainPlayer');
+    const dataContainer = document.getElementById('playerDataContainer');
+    if (!player || !dataContainer) return;
 
-    const currentSrc = oldPlayer.src;
-    let tmdbId = '';
-    let isTV = currentSrc.includes('/tv/') || currentSrc.includes('-1-1') || currentSrc.includes('/1/1');
+    // Direct extraction from HTML attributes (100% accurate, no regex fails)
+    let tmdbId = dataContainer.getAttribute('data-tmdb-id');
+    let mediaType = dataContainer.getAttribute('data-media-type') || 'movie';
 
-    // Safe TMDB ID Extraction
-    const match = currentSrc.match(/(?:movie\/|tv\/|tmdb\/)([0-9]+)/);
-    if (match && match[1]) {
-        tmdbId = match[1];
-    } else {
-        console.error("TMDB ID could not be retrieved from active stream.");
-        return; 
+    // Fallback: Agar upar se ID khali mile toh current iframe URL se backup try karo
+    if (!tmdbId) {
+        const currentSrc = player.src;
+        const match = currentSrc.match(/(?:movie\/|tv\/|tmdb\/)([0-9]+)/);
+        if (match && match[1]) {
+            tmdbId = match[1];
+            mediaType = currentSrc.includes('/tv/') ? 'tv' : 'movie';
+        }
     }
 
-    // Generate accurate URLs based on Server Specifications
+    if (!tmdbId) {
+        console.error("TMDB ID missing.");
+        return;
+    }
+
+    let isTV = (mediaType === 'tv' || mediaType === 'series');
     let targetUrl = '';
+
+    // Precise URL Generation
     if (serverName === 'vidsrc') {
         targetUrl = isTV ? `https://vidsrc.me/embed/tv/${tmdbId}/1-1` : `https://vidsrc.me/embed/movie/${tmdbId}`;
     } else if (serverName === 'autoembed') {
@@ -32,28 +39,10 @@ function switchStreamingServer(serverName, event) {
     }
 
     if (targetUrl) {
-        // POWERFUL FIX: Purane iframe ko delete karke naya sandbox-enabled iframe install karna
-        playerContainer.innerHTML = ''; 
-        
-        const newPlayer = document.createElement('iframe');
-        newPlayer.id = 'mainPlayer';
-        newPlayer.src = targetUrl;
-        newPlayer.setAttribute('allowfullscreen', 'true');
-        newPlayer.setAttribute('frameborder', '0');
-        newPlayer.setAttribute('scrolling', 'no');
-        
-        // Yeh permissions server 2 aur 3 ko smooth chalne par majboor karengi
-        newPlayer.setAttribute('sandbox', 'allow-forms allow-pointer-lock allow-same-origin allow-scripts allow-top-navigation');
-        newPlayer.setAttribute('allow', 'autoplay; encrypted-media; picture-in-picture');
-
-        // Container mein naya player daal dein
-        playerContainer.appendChild(newPlayer);
-        
-        // Phir se load event listener attach karein taake reset logic chalti rahe
-        attachPlayerLoadListener(newPlayer);
+        player.src = targetUrl;
     }
 
-    // Active Button State Handle
+    // Update active button classes
     const buttons = document.querySelectorAll('.srv-btn');
     buttons.forEach(btn => btn.classList.remove('active'));
     if (event && event.currentTarget) {
@@ -61,26 +50,19 @@ function switchStreamingServer(serverName, event) {
     }
 }
 
-function attachPlayerLoadListener(playerInstance) {
-    if (!playerInstance) return;
-    playerInstance.addEventListener('load', function() {
-        if (this.src.includes('vidsrc.me')) {
-            const buttons = document.querySelectorAll('.srv-btn');
-            buttons.forEach(btn => btn.classList.remove('active'));
-            if (buttons[0]) {
-                buttons[0].classList.add('active');
+// Global click hook to capture when user clicks on a new movie card from home page
+window.addEventListener('message', function(event) {
+    // If your card click updates the iframe from another function, we dynamic sync here
+    const player = document.getElementById('mainPlayer');
+    if (player) {
+        setTimeout(() => {
+            const currentSrc = player.src;
+            const dataContainer = document.getElementById('playerDataContainer');
+            const match = currentSrc.match(/(?:movie\/|tv\/|tmdb\/)([0-9]+)/);
+            if (match && match[1] && dataContainer) {
+                dataContainer.setAttribute('data-tmdb-id', match[1]);
+                dataContainer.setAttribute('data-media-type', currentSrc.includes('/tv/') ? 'tv' : 'movie');
             }
-        }
-    });
-}
-
-// Initial Core Hook
-document.addEventListener('DOMContentLoaded', () => {
-    const initialPlayer = document.getElementById('mainPlayer');
-    if (initialPlayer) {
-        // Default player par bhi dynamic sandbox apply kar dete hain taake start se secure rahe
-        initialPlayer.setAttribute('sandbox', 'allow-forms allow-pointer-lock allow-same-origin allow-scripts allow-top-navigation');
-        initialPlayer.setAttribute('allow', 'autoplay; encrypted-media; picture-in-picture');
-        attachPlayerLoadListener(initialPlayer);
+        }, 500);
     }
 });
