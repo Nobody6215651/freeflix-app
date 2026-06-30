@@ -7,10 +7,15 @@ app = Flask(__name__)
 def home():
     # Direct routing via split structural logic
     bollywood, hollywood, anime = tmdb_engine.get_homepage_content()
+    
+    # ERROR FIX: all_content variable ko dubara combine kiya taaki HTML crash na ho
+    all_content = hollywood + bollywood + anime 
+    
     return render_template('index.html', 
                            bollywood=bollywood, 
                            hollywood=hollywood, 
-                           anime=anime)
+                           anime=anime,
+                           all_content=all_content) # Is line me all_content pass kr diya
 
 @app.route('/api/tv-meta/<int:tv_id>')
 def tv_meta(tv_id):
