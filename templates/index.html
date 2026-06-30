@@ -1,462 +1,116 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FREE FLIX - Premium Elite Theater</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;900&display=swap" rel="stylesheet">
-    
-    <style>
-        :root {
-            --netflix-black: #141414;
-            --netflix-card: #181818;
-            --accent: #ff0055;
-            --border: rgba(255, 255, 255, 0.08);
-            --text-main: #ffffff;
-            --text-muted: #aaaaaa;
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: var(--netflix-black);
-            color: var(--text-main);
-            overflow-x: hidden;
-            -webkit-font-smoothing: antialiased;
-        }
-
-        .navbar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 20px 4%;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, transparent 100%);
-        }
-
-        .brand-logo {
-            font-size: 1.8rem;
-            font-weight: 900;
-            text-transform: uppercase;
-            color: #fff;
-            text-decoration: none;
-            letter-spacing: -1px;
-            text-shadow: 0 0 10px rgba(255, 0, 85, 0.5);
-        }
-        .brand-logo span { color: var(--accent); }
-
-        /* --- THE GLOWING RED CENTRAL SEARCH CONTEXT --- */
-        .hero-search-wrapper {
-            max-width: 700px;
-            margin: 40px auto 20px auto;
-            padding: 0 4%;
-            text-align: center;
-        }
-        
-        .search-container { position: relative; width: 100%; }
-        
-        .search-box {
-            width: 100%; padding: 16px 26px;
-            background: #000000;
-            border: 2px solid #330011;
-            border-radius: 50px; color: #fff;
-            font-family: inherit; font-size: 1.05rem;
-            font-weight: 500;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-        }
-        
-        /* Vibrant Red Premium Neon Glow on Active/Focus Click */
-        .search-box:focus {
-            outline: none;
-            border-color: var(--accent);
-            background: #0a0003;
-            box-shadow: 0 0 25px rgba(255, 0, 85, 0.8), inset 0 0 8px rgba(255, 0, 85, 0.3);
-        }
-
-        .suggestions-panel {
-            position: absolute; top: calc(100% + 10px); left: 0; width: 100%;
-            background: var(--netflix-card); border: 1px solid var(--border);
-            border-radius: 12px; overflow: hidden; display: none; z-index: 1100;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.8);
-        }
-        .suggestion-item { padding: 14px 20px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.9rem; text-align: left;}
-        .suggestion-item:hover { background: rgba(255, 0, 85, 0.2); }
-
-        /* --- DYNAMIC THEATER AREA (HIDDEN BY DEFAULT FOR FOCUS ENGINE) --- */
-        .main-layout {
-            max-width: 1400px; margin: 0 auto; padding: 0 4%;
-            display: none; flex-direction: column; gap: 20px;
-            transform: scale(0.98); opacity: 0;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        /* Active Focus Highlight Rule */
-        .main-layout.focused-active {
-            display: flex; transform: scale(1); opacity: 1;
-            padding: 15px 4%; border-radius: 16px;
-            background: linear-gradient(180deg, rgba(255, 0, 85, 0.04) 0%, transparent 100%);
-        }
-
-        .video-container {
-            position: relative; padding-bottom: 56.25%; height: 0;
-            overflow: hidden; border-radius: 12px; background: #000;
-            box-shadow: 0 0 35px rgba(255, 0, 85, 0.15);
-        }
-        .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
-
-        .media-details {
-            background: var(--netflix-card); border: 1px solid var(--border);
-            border-radius: 12px; padding: 24px; margin-bottom: 20px;
-        }
-        .active-title { font-size: 1.8rem; font-weight: 900; margin-bottom: 8px; }
-        .meta-line { font-size: 0.88rem; color: var(--text-muted); display: flex; gap: 12px; align-items: center; }
-        .type-badge { background: var(--accent); color: white; padding: 2px 8px; border-radius: 4px; font-weight: 700; }
-        .quality-tag-fixed { color: #00e5ff; font-weight: 700; }
-
-        /* --- EPISODE MATRIX DECK --- */
-        .series-control-deck {
-            margin-top: 20px; padding-top: 20px;
-            border-top: 1px solid rgba(255,255,255,0.05);
-            display: none; flex-direction: column; gap: 15px;
-        }
-        .season-selector-label { font-size: 0.95rem; font-weight: 700; color: #fff; }
-        
-        .netflix-dropdown {
-            background: #2f2f2f; color: #fff; border: 1px solid rgba(255,255,255,0.1);
-            padding: 10px 16px; font-size: 0.9rem; font-weight: 700; border-radius: 4px;
-            cursor: pointer; width: fit-content; min-width: 160px; outline: none;
-        }
-
-        .episode-scroll-grid { display: flex; flex-wrap: wrap; gap: 10px; max-height: 220px; overflow-y: auto; }
-        .episode-pill {
-            background: rgba(255, 255, 255, 0.06); border: 1px solid transparent;
-            color: #fff; padding: 10px 18px; border-radius: 6px; cursor: pointer;
-            font-size: 0.85rem; font-weight: 700; min-width: 75px; text-align: center;
-        }
-        .episode-pill:hover { background: rgba(255, 255, 255, 0.15); }
-        .episode-pill.active-ep { background: var(--accent); border-color: var(--accent); color: #fff; }
-
-        /* --- CINEMATIC NETFLIX ROWS --- */
-        .shelf-container { max-width: 1400px; margin: 40px auto; padding: 0 4%; }
-        .shelf-heading { font-size: 1.3rem; font-weight: 700; margin-bottom: 15px; letter-spacing: -0.5px; }
-        
-        .movie-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); 
-            gap: 18px; 
-        }
-
-        .movie-card {
-            background: var(--netflix-card); border-radius: 6px; overflow: hidden;
-            cursor: pointer; transition: transform 0.25s cubic-bezier(0.25, 1, 0.5, 1);
-            position: relative; border: 1px solid transparent;
-            content-visibility: auto;
-        }
-        .movie-card:hover { transform: scale(1.04); border-color: rgba(255,255,255,0.2); }
-        
-        .poster-frame { 
-            position: relative; width: 100%; padding-top: 56.25%; 
-            background-size: cover; background-position: center; background-color: #222;
-        }
-
-        .card-details { padding: 12px; }
-        .card-title { font-size: 0.88rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .card-sub { font-size: 0.78rem; color: var(--text-muted); margin-top: 5px; display: flex; justify-content: space-between; }
-
-        @media (max-width: 600px) {
-            .navbar { padding: 15px 4%; }
-            .brand-logo { font-size: 1.4rem; }
-            .hero-search-wrapper { margin: 20px auto; }
-            .search-box { padding: 12px 20px; font-size: 0.95rem; }
-            .movie-grid { grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: 12px; }
-            .active-title { font-size: 1.3rem; }
-        }
-    </style>
+    <title>Free Video Downloader & Stream</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
 
-    <nav class="navbar">
-        <a href="/" class="brand-logo">FREE<span>FLIX</span></a>
-    </nav>
+    <header class="main-header" id="mainHeader">
+        <div class="header-logo">PremiumFlix</div>
+        <nav class="header-nav">
+            <a href="#" class="nav-link">Home</a>
+            <a href="#" class="nav-link">Movies</a>
+            <a href="#" class="nav-link">TV Shows</a>
+            <a href="#" class="nav-link">New & Popular</a>
+        </nav>
+    </header>
 
-    <div class="hero-search-wrapper">
-        <div class="search-container">
-            <input type="text" class="search-box" placeholder="Search movies or anime series..." id="searchBox" autocomplete="off">
-            <div class="suggestions-panel" id="suggestionsPanel"></div>
-        </div>
-    </div>
-
-    <main class="main-layout" id="theaterStage">
-  <div class="player-container">
-    <iframe id="mainPlayer" src="{{ hollywood[0].embed_url if hollywood else (bollywood[0].embed_url if bollywood else '') }}" allowfullscreen allow="autoplay; encrypted-media; picture-in-picture"></iframe>
-</div>
-<script>
-    window.currentMediaId = '';
-    window.currentMediaType = 'movie';
-
-    // Safe auto-wrapper: Yeh bina aapka code toore clicks ko track kar leta hai
-    (function initWrapper() {
-        if (typeof window.playMedia === 'function' && !window.playMedia.isWrapped) {
-            const originalPlayMedia = window.playMedia;
-            window.playMedia = function(id, type, title, year, embedUrl) {
-                window.currentMediaId = id;
-                window.currentMediaType = (type && type.toLowerCase() === 'series') ? 'tv' : 'movie';
-                originalPlayMedia(id, type, title, year, embedUrl);
-                resetServerButtons();
-            };
-            window.playMedia.isWrapped = true;
-        } else {
-            setTimeout(initWrapper, 100);
-        }
-    })();
-
-    function changeServer(serverType, event) {
-        // Agar pehli baar bina click kiye koi server badle toh auto-detect id from default src
-        if (!window.currentMediaId) {
-            const currentSrc = document.getElementById('mainPlayer').src;
-            if (currentSrc.includes('movie/')) {
-                window.currentMediaId = currentSrc.split('movie/')[1].split('/')[0].split('?')[0];
-                window.currentMediaType = 'movie';
-            } else if (currentSrc.includes('tv/')) {
-                window.currentMediaId = currentSrc.split('tv/')[1].split('/')[0].split('?')[0];
-                window.currentMediaType = 'tv';
-            }
-        }
-
-        if (!window.currentMediaId) return;
-
-        let newUrl = '';
-        if (serverType === 'vidsrc') {
-            newUrl = window.currentMediaType === 'tv' 
-                ? `https://vidsrc.me/embed/tv/${window.currentMediaId}/1-1` 
-                : `https://vidsrc.me/embed/movie/${window.currentMediaId}`;
-        } else if (serverType === 'autoembed') {
-            newUrl = window.currentMediaType === 'tv' 
-                ? `https://autoembed.to/tv/tmdb/${window.currentMediaId}-1-1` 
-                : `https://autoembed.to/movie/tmdb/${window.currentMediaId}`;
-        } else if (serverType === 'embedsu') {
-            newUrl = window.currentMediaType === 'tv' 
-                ? `https://embed.su/embed/tv/${window.currentMediaId}/1/1` 
-                : `https://embed.su/embed/movie/${window.currentMediaId}`;
-        }
-
-        if (newUrl) {
-            document.getElementById('mainPlayer').src = newUrl;
-        }
-
-        // Active button styling handle karne ke liye
-        const buttons = document.querySelectorAll('.server-btn');
-        buttons.forEach(btn => {
-            btn.style.background = '#222';
-            btn.style.color = '#ccc';
-            btn.style.borderColor = '#444';
-        });
-        if (event && event.target) {
-            event.target.style.background = 'var(--accent, #e50914)';
-            event.target.style.color = 'white';
-            event.target.style.borderColor = 'transparent';
-        }
-    }
-
-    function resetServerButtons() {
-        const buttons = document.querySelectorAll('.server-btn');
-        if (buttons.length > 0) {
-            buttons.forEach(btn => {
-                btn.style.background = '#222';
-                btn.style.color = '#ccc';
-                btn.style.borderColor = '#444';
-            });
-            buttons[0].style.background = 'var(--accent, #e50914)';
-            buttons[0].style.color = 'white';
-            buttons[0].style.borderColor = 'transparent';
-        }
-    }
-</script>  
-        </div>
-
-        <div class="media-details">
-            <h1 class="active-title" id="activeTitle">Loading Title</h1>
-            <div class="meta-line">
-                <span class="type-badge" id="activeType">Movie</span>
-                <span id="activeYear">2026</span>
-                <span class="quality-tag-fixed">Available in 1080p HD</span>
-            </div>
-
-            <div class="series-control-deck" id="seriesDeck">
-                <label class="season-selector-label">Select Season</label>
-                <select class="netflix-dropdown" id="seasonSelector" onchange="switchSeason(this.value)"></select>
-                
-                <label class="season-selector-label" style="margin-top: 10px;">Available Episodes</label>
-                <div class="episode-scroll-grid" id="episodeGrid"></div>
+    <section class="hero-billboard" style="background-image: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.1)), url('https://images.unsplash.com/photo-1616530940355-351fabd9524b?q=80&w=1600');">
+        <div class="hero-content">
+            <h1 class="hero-title">Disclosure Day</h1>
+            <p class="hero-synopsis">Experience the ultimate thrilling cinematic masterpiece of the year. Secrets will be exposed, and the truth will reshape the global order forever.</p>
+            <div class="hero-buttons">
+                <button class="btn-play">▶ Play</button>
+                <button class="btn-info">ℹ More Info</button>
             </div>
         </div>
+        <div class="hero-v-gradient"></div>
+    </section>
+
+    <main class="main-layout">
+        
+        <div class="movie-carousel-section">
+            <h2 class="row-title">Hollywood Blockbusters</h2>
+            <div class="carousel-wrapper">
+                <div class="movie-row">
+                    
+                    <div class="movie-card">
+                        <img src="https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=500" alt="Movie Poster">
+                        <div class="card-hover-details">
+                            <div class="card-actions">
+                                <button class="action-circle btn-accent">▶</button>
+                                <button class="action-circle">+</button>
+                                <button class="action-circle">👍</button>
+                            </div>
+                            <div class="card-meta">
+                                <span class="match-pct">98% Match</span>
+                                <span class="age-rating">18+</span>
+                                <span class="duration">2h 15m</span>
+                            </div>
+                            <div class="card-genres">Action • Sci-Fi • Thriller</div>
+                        </div>
+                    </div>
+
+                    <div class="movie-card">
+                        <img src="https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=500" alt="Movie Poster">
+                        <div class="card-hover-details">
+                            <div class="card-actions">
+                                <button class="action-circle btn-accent">▶</button>
+                                <button class="action-circle">+</button>
+                                <button class="action-circle">👍</button>
+                            </div>
+                            <div class="card-meta">
+                                <span class="match-pct">95% Match</span>
+                                <span class="age-rating">13+</span>
+                                <span class="duration">1h 58m</span>
+                            </div>
+                            <div class="card-genres">Drama • Mystery • Romance</div>
+                        </div>
+                    </div>
+
+                    <div class="movie-card">
+                        <img src="https://images.unsplash.com/photo-1578328819058-b69f3a3b0f6s?q=80&w=500" alt="Movie Poster">
+                        <div class="card-hover-details">
+                            <div class="card-actions">
+                                <button class="action-circle btn-accent">▶</button>
+                                <button class="action-circle">+</button>
+                                <button class="action-circle">👍</button>
+                            </div>
+                            <div class="card-meta">
+                                <span class="match-pct">92% Match</span>
+                                <span class="age-rating">16+</span>
+                                <span class="duration">2 Seasons</span>
+                            </div>
+                            <div class="card-genres">Crime • Thriller • Suspense</div>
+                        </div>
+                    </div>
+
+                    <div class="movie-card">
+                        <img src="https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=500" alt="Movie Poster">
+                        <div class="card-hover-details">
+                            <div class="card-actions">
+                                <button class="action-circle btn-accent">▶</button>
+                                <button class="action-circle">+</button>
+                                <button class="action-circle">👍</button>
+                            </div>
+                            <div class="card-meta">
+                                <span class="match-pct">99% Match</span>
+                                <span class="age-rating">18+</span>
+                                <span class="duration">2h 42m</span>
+                            </div>
+                            <div class="card-genres">Fantasy • Adventure</div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
     </main>
 
-      <section class="shelf-container">
-    <h2 class="shelf-heading">Hollywood Movies</h2>
-    <div class="movie-grid">
-        {% for item in hollywood %}
-        <div class="movie-card" onclick="playMedia('{{ item.id }}', '{{ item.type }}', `{{ item.title }}`, '{{ item.year }}', '{{ item.embed_url }}')">
-            <div class="poster-frame" style="background-image: url('{{ item.poster }}'); background-size: cover; background-position: center;"></div>
-            <div class="card-details">
-                <div class="card-title">{{ item.title }}</div>
-                <div class="card-sub">
-                    <span>{{ item.year }}</span>
-                    <span style="color:var(--accent);">1080p HD</span>
-                </div>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-</section>
-
-<section class="shelf-container">
-    <h2 class="shelf-heading">Hollywood Popular Series</h2>
-    <div class="movie-grid">
-        {% for item in anime %}
-        <div class="movie-card" onclick="playMedia('{{ item.id }}', '{{ item.type }}', `{{ item.title }}`, '{{ item.year }}', '{{ item.embed_url }}')">
-            <div class="poster-frame" style="background-image: url('{{ item.poster }}'); background-size: cover; background-position: center;"></div>
-            <div class="card-details">
-                <div class="card-title">{{ item.title }}</div>
-                <div class="card-sub">
-                    <span>{{ item.year }}</span>
-                    <span style="color:#00e5ff;">1080p HD</span>
-                </div>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-</section>
-
-<section class="shelf-container">
-    <h2 class="shelf-heading">Trending Bollywood</h2>
-    <div class="movie-grid">
-        {% for item in bollywood %}
-        <div class="movie-card" onclick="playMedia('{{ item.id }}', '{{ item.type }}', `{{ item.title }}`, '{{ item.year }}', '{{ item.embed_url }}')">
-            <div class="poster-frame" style="background-image: url('{{ item.poster }}'); background-size: cover; background-position: center;"></div>
-            <div class="card-details">
-                <div class="card-title">{{ item.title }}</div>
-                <div class="card-sub">
-                    <span>{{ item.year }}</span>
-                    <span style="color:var(--accent);">1080p HD</span>
-                </div>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-</section>
-    <script>
-        let currentShowId = null;
-        let activeSeasonNum = 1;
-
-        // Enhanced Click Focus Action Pipeline
-        async function playMedia(id, type, title, year, embedUrl) {
-            const stage = document.getElementById('theaterStage');
-            
-            // Activate dynamic focus styles
-            stage.classList.add('focused-active');
-            
-            document.getElementById('mainPlayer').src = embedUrl;
-            document.getElementById('activeTitle').innerText = title;
-            document.getElementById('activeType').innerText = type;
-            document.getElementById('activeYear').innerText = year;
-            
-            const deck = document.getElementById('seriesDeck');
-            
-            if (type === 'Series') {
-                currentShowId = id;
-                deck.style.display = 'flex';
-                await loadShowMetadata(id);
-            } else {
-                deck.style.display = 'none';
-                currentShowId = null;
-            }
-            
-            // Smoothly scrolls & centers the viewport target directly onto the player
-            stage.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-
-        async function loadShowMetadata(tvId) {
-            try {
-                const res = await fetch(`/api/tv-meta/${tvId}`);
-                const data = await res.json();
-                const select = document.getElementById('seasonSelector');
-                
-                select.innerHTML = data.seasons.map(s => 
-                    `<option value="${s.season_number}" data-epcount="${s.episode_count}">${s.name}</option>`
-                ).join('');
-                
-                if(data.seasons.length > 0) {
-                    switchSeason(data.seasons[0].season_number);
-                }
-            } catch (err) {
-                console.error("Meta API error", err);
-            }
-        }
-
-        function switchSeason(seasonNum) {
-            activeSeasonNum = seasonNum;
-            const select = document.getElementById('seasonSelector');
-            const selectedOpt = select.options[select.selectedIndex];
-            const epCount = parseInt(selectedOpt.getAttribute('data-epcount')) || 0;
-            
-            const grid = document.getElementById('episodeGrid');
-            let html = '';
-            for (let i = 1; i <= epCount; i++) {
-                let activeClass = (i === 1) ? 'episode-pill active-ep' : 'episode-pill';
-                html += `<div class="${activeClass}" id="ep-pill-${i}" onclick="loadTargetEpisode(${i})">Ep ${i}</div>`;
-            }
-            grid.innerHTML = html;
-        }
-
-        function loadTargetEpisode(epNum) {
-            document.querySelectorAll('.episode-pill').forEach(el => el.classList.remove('active-ep'));
-            const targetPill = document.getElementById(`ep-pill-${epNum}`);
-            if(targetPill) targetPill.classList.add('active-ep');
-            
-            document.getElementById('mainPlayer').src = `https://vidsrc.me/embed/tv/${currentShowId}/${activeSeasonNum}-${epNum}`;
-        }
-
-        // Live Red Engine Input Scanner
-        const searchBox = document.getElementById('searchBox');
-        const panel = document.getElementById('suggestionsPanel');
-
-        searchBox.addEventListener('input', async (e) => {
-            const query = e.target.value.trim();
-            if(query.length < 2) { panel.style.display = 'none'; return; }
-
-            try {
-                const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
-                const items = await res.json();
-                
-                if(items.length === 0) {
-                    panel.innerHTML = '<div class="suggestion-item" style="color:var(--text-muted)">No official titles found</div>';
-                } else {
-                    panel.innerHTML = items.map(item => `
-                        <div class="suggestion-item" onclick="triggerSearchSelect('${item.id}', '${item.type}', \`${item.title}\`, '${item.year}', '${item.embed_url}')">
-                            <strong>${item.title}</strong> (${item.year}) <span style="color:var(--accent); float:right; font-size:0.78rem;">Available in 1080p HD</span>
-                        </div>
-                    `).join('');
-                }
-                panel.style.display = 'block';
-            } catch (err) {
-                console.error("Search failure", err);
-            }
-        });
-
-        function triggerSearchSelect(id, type, title, year, embedUrl) {
-            playMedia(id, type, title, year, embedUrl);
-            panel.style.display = 'none';
-            searchBox.value = '';
-        }
-
-        document.addEventListener('click', (e) => {
-            if(!searchBox.contains(e.target) && !panel.contains(e.target)) { panel.style.display = 'none'; }
-        });
-    </script>
     <script src="{{ url_for('static', filename='js/player.js') }}"></script>
 </body>
 </html>
