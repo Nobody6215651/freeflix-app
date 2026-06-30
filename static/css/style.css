@@ -1,17 +1,314 @@
-/* PremiumFlix - Clean Single Player Layout */
-.player-container {
-    width: 100%;
-    position: relative;
-    overflow: hidden;
-    border-radius: 8px;
-    background: #000;
-    margin-bottom: 25px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+/* ==========================================================================
+   PREMIUMFLIX PLATFORM BRAND STYLING (GLOBAL PRESETS)
+   ========================================================================== */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
-#mainPlayer {
+body {
+    background-color: #141414;
+    color: #ffffff;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* 1. DYNAMIC HEADER FADE WITH TRANSITION LATCH */
+.main-header {
+    position: fixed;
+    top: 0;
+    left: 0;
     width: 100%;
-    aspect-ratio: 16/9;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 4%;
+    background-color: transparent;
+    z-index: 2000;
+    transition: background-color 500ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.main-header.scrolled {
+    background-color: #141414 !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.header-logo {
+    color: #e50914;
+    font-size: 28px;
+    font-weight: 900;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.header-nav {
+    display: flex;
+    gap: 20px;
+}
+
+.nav-link {
+    color: #e5e5e5;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.3s ease, text-shadow 0.3s ease;
+}
+
+.nav-link:hover {
+    color: #ffffff;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+}
+
+/* 2. HERO BILLBOARD VERTICAL MASKING GRAPHICS */
+.hero-billboard {
+    position: relative;
+    width: 100%;
+    height: 85vh;
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    padding: 0 4%;
+}
+
+.hero-content {
+    max-width: 650px;
+    z-index: 10;
+    margin-top: 50px;
+}
+
+.hero-title {
+    font-size: 3.5rem;
+    font-weight: 800;
+    margin-bottom: 15px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.6);
+}
+
+.hero-synopsis {
+    font-size: 1.1rem;
+    line-height: 1.4;
+    color: #f3f3f3;
+    margin-bottom: 25px;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 15px;
+}
+
+.btn-play, .btn-info {
     border: none;
+    padding: 12px 28px;
+    font-size: 16px;
+    font-weight: 700;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.btn-play {
+    background-color: #ffffff;
+    color: #000000;
+}
+
+.btn-info {
+    background-color: rgba(109, 109, 110, 0.7);
+    color: #ffffff;
+}
+
+.btn-play:hover, .btn-info:hover {
+    opacity: 0.85;
+    transform: scale(1.02);
+}
+
+/* Hero Bottom Blending Mask Gradient Box */
+.hero-v-gradient {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 180px;
+    background: linear-gradient(to top, #141414 0%, rgba(20, 20, 20, 0.7) 40%, transparent 100%);
+    z-index: 5;
+}
+
+/* 3. SIGNATURE NETFLIX HOVER ZOOM SCROLL ENGINE */
+.main-layout {
+    position: relative;
+    padding: 0 4% 50px 4%;
+    margin-top: -60px;
+    z-index: 10;
+}
+
+.movie-carousel-section {
+    position: relative;
+    margin-bottom: 40px;
+}
+
+.row-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #e5e5e5;
+    margin-bottom: 15px;
+}
+
+/* Anti-clipping carousel mask strategy */
+.carousel-wrapper {
+    overflow-x: auto;
+    overflow-y: visible;
+    padding: 25px 0; /* Creates spatial buffers for cards to expand without boundaries clipping */
+    margin-top: -25px;
+    scrollbar-width: none; /* Hide standard Firefox scrollbars */
+}
+
+.carousel-wrapper::-webkit-scrollbar {
+    display: none; /* Hide Chrome/Safari scrollbars */
+}
+
+.movie-row {
+    display: flex;
+    gap: 10px;
+    transition: transform 0.3s ease-out;
+}
+
+/* Modular Base Card Component */
+.movie-card {
+    position: relative;
+    flex: 0 0 260px;
+    aspect-ratio: 16/9;
+    background-color: #181818;
+    border-radius: 4px;
+    cursor: pointer;
+    transform-origin: center center;
+    transition: transform 350ms cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 350ms ease-out, z-index 0s linear;
+    z-index: 1;
+}
+
+.movie-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 4px;
     display: block;
+}
+
+/* Reveal Area Definition Hidden by default */
+.card-hover-details {
+    display: none;
+    opacity: 0;
+    position: absolute;
+    top: 98%;
+    left: 0;
+    width: 100%;
+    background-color: #181818;
+    padding: 16px;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+    z-index: 100;
+}
+
+/* HIGH POWER TIMED EXPANSION ENGINE OVERLAYS */
+.movie-card:hover {
+    transform: scale(1.3);
+    z-index: 1500;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.8);
+    transition-delay: 400ms; /* Exact Netflix-style intentional delay buffer */
+}
+
+.movie-card:hover img {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    transition-delay: 400ms;
+}
+
+.movie-card:hover .card-hover-details {
+    display: block;
+    opacity: 1;
+    animation: fadeIn 200ms ease-out forwards;
+    animation-delay: 400ms;
+}
+
+/* Hover Reveal Component Visual Styling Elements */
+.card-actions {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.action-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid #808080;
+    background-color: rgba(42, 42, 42, 0.6);
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.2s, background-color 0.2s;
+}
+
+.action-circle:hover {
+    border-color: #ffffff;
+    background-color: rgba(80, 80, 80, 0.8);
+}
+
+.action-circle.btn-accent {
+    background-color: #ffffff;
+    color: #000000;
+    border-color: #ffffff;
+}
+
+.card-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.match-pct {
+    color: #46d369;
+    font-weight: 700;
+}
+
+.age-rating {
+    border: 1px solid rgba(255,255,255,0.4);
+    padding: 1px 5px;
+    font-size: 11px;
+    border-radius: 2px;
+}
+
+.duration {
+    color: #bcbcbc;
+}
+
+.card-genres {
+    font-size: 12px;
+    color: #e5e5e5;
+    letter-spacing: 0.3px;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* RESPONSIVE LAYOUT FIXES FOR TARGET PLATFORMS */
+@media (max-width: 768px) {
+    .hero-title { font-size: 2.2rem; }
+    .hero-synopsis { font-size: 0.95rem; }
+    .movie-card { flex: 0 0 180px; }
+    .movie-card:hover { transform: scale(1.15); } /* Slightly lower mobile scale to prevent edge breaking */
+    .main-header { padding: 15px 4%; }
 }
