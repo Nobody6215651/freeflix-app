@@ -1,0 +1,49 @@
+.player-container {
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+    background: #000;
+    margin-bottom: 10px;
+}
+
+#mainPlayer {
+    width: 100%;
+    aspect-ratio: 16/9;
+    border: none;
+    display: block;
+}
+
+.server-selector {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+    margin-bottom: 25px;
+    justify-content: center;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.srv-btn {
+    background: #181818;
+    color: #aaaaaa;
+    border: 1px solid #333333;
+    padding: 10px 24px;
+    border-radius: 6px;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.25s ease;
+}
+
+.srv-btn:hover {
+    background: #252525;
+    color: #ffffff;
+    border-color: #555555;
+}
+
+.srv-btn.active {
+    background: #e50914 !important;
+    color: #ffffff !important;
+    border-color: transparent !important;
+}
