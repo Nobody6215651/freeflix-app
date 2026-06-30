@@ -1,0 +1,112 @@
+from flask import Flask, render_template, jsonify, request
+
+app = Flask(__name__)
+
+# Premium Database Simulation (Movies & Series Array)
+MOVIES_DB = [
+    {
+        "id": 1,
+        "title": "Jawan 2",
+        "category": "bollywood",
+        "type": "Movie",
+        "quality": "4K UHD",
+        "language": "Hindi (Original)",
+        "year": "2026",
+        "embed_url": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+        "download_url": "#",
+        "meta_extra": "Action • Thriller"
+    },
+    {
+        "id": 2,
+        "title": "Pathaan Returns",
+        "category": "bollywood",
+        "type": "Movie",
+        "quality": "1080p WebDL",
+        "language": "Hindi",
+        "year": "2025",
+        "embed_url": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+        "download_url": "#",
+        "meta_extra": "Spy Universe • Masala"
+    },
+    {
+        "id": 3,
+        "title": "Spider-Man: Beyond the Spider-Verse",
+        "category": "hollywood",
+        "type": "Movie",
+        "quality": "4K Dolby Vision",
+        "language": "English / Hindi",
+        "year": "2026",
+        "embed_url": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+        "download_url": "#",
+        "meta_extra": "Animation • Sci-Fi"
+    },
+    {
+        "id": 4,
+        "title": "Shrek 5 (Official Cinematic)",
+        "category": "hollywood",
+        "type": "Movie",
+        "quality": "1080p Bluray",
+        "language": "English",
+        "year": "2026",
+        "embed_url": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+        "download_url": "#",
+        "meta_extra": "Animation • Comedy"
+    },
+    {
+        "id": 5,
+        "title": "Solo Leveling - Season 2",
+        "category": "anime",
+        "type": "Series",
+        "season": "S02",
+        "episode": "Ep 04",
+        "quality": "1080p TrueHD",
+        "language": "Japanese (Sub) / Hindi",
+        "year": "2026",
+        "embed_url": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+        "download_url": "#",
+        "meta_extra": "Anime • Dark Fantasy"
+    },
+    {
+        "id": 6,
+        "title": "Demon Slayer: Infinity Castle",
+        "category": "anime",
+        "type": "Series",
+        "season": "S04",
+        "episode": "Ep 01",
+        "quality": "4K UltraHD",
+        "language": "Japanese / Hindi Dubbed",
+        "year": "2025",
+        "embed_url": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+        "download_url": "#",
+        "meta_extra": "Anime • Shounen"
+    }
+]
+
+@app.route('/')
+def home():
+    # Segregate items dynamically for zero lagging rendering
+    bollywood = [m for m in MOVIES_DB if m['category'] == 'bollywood']
+    hollywood = [m for m in MOVIES_DB if m['category'] == 'hollywood']
+    anime = [m for m in MOVIES_DB if m['category'] == 'anime']
+    
+    return render_template('index.html', 
+                           bollywood=bollywood, 
+                           hollywood=hollywood, 
+                           anime=anime, 
+                           all_content=MOVIES_DB)
+
+# Fast Backend Endpoint for Smart Search Suggestions
+@app.route('/api/search')
+def search_api():
+    query = request.args.get('q', '').lower()
+    if not query:
+        return jsonify([])
+    
+    results = [
+        m for m in MOVIES_DB 
+        if query in m['title'].lower() or query in m['category'].lower()
+    ]
+    return jsonify(results[:5]) # Top 5 relevant instant suggestions
+
+if __name__ == '__main__':
+    app.run(debug=True)
