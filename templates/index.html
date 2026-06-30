@@ -190,8 +190,10 @@
     </div>
 
     <main class="main-layout" id="theaterStage">
-      <div class="player-container">
-    <iframe id="mainPlayer" src="{{ hollywood[0].embed_url if hollywood else (bollywood[0].embed_url if bollywood else '') }}" allowfullscreen></iframe>
+    <div class="player-container" 
+     id="playerDataContainer"
+     data-tmdb-id="{{ hollywood[0].id if hollywood else (bollywood[0].id if bollywood else '') }}" 
+     data-media-type="movie"> <iframe id="mainPlayer" src="{{ hollywood[0].embed_url if hollywood else (bollywood[0].embed_url if bollywood else '') }}" allowfullscreen allow="autoplay; encrypted-media"></iframe>
 </div>
 
 <div class="server-selector">
@@ -199,7 +201,6 @@
     <button onclick="switchStreamingServer('autoembed', event)" class="srv-btn">Server 2 (AutoEmbed)</button>
     <button onclick="switchStreamingServer('embedsu', event)" class="srv-btn">Server 3 (Embed.su)</button>
 </div>
-
 <script>
     window.currentMediaId = '';
     window.currentMediaType = 'movie';
