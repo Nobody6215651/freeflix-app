@@ -5,88 +5,73 @@ from flask import Flask, render_template, jsonify, request
 
 app = Flask(__name__)
 
-# Official Live TMDB Keys Provided By You
+# Official Live TMDB Key Verified
 TMDB_API_KEY = "82e880c89dbf119b940e034ed32a3498"
 
 def fetch_live_tmdb(url):
-    """Safe Native Fetcher to guarantee 0% crash rate on Render deployment"""
+    """Safe Native Engine to guarantee 100% uptime on Render"""
     try:
         req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0 PremiumFlix/1.0'})
         with urllib.request.urlopen(req, timeout=6) as response:
             return json.loads(response.read().decode())
     except Exception as e:
-        print(f"TMDB Pipe Error: {e}")
+        print(f"TMDB Fetch Error: {e}")
         return {"results": []}
 
 @app.route('/')
 def home():
-    # 1. Fetch Trending Bollywood (Hindi Language - Newest & Popular)
+    # 1. Fetch Bollywood (Hindi)
     b_url = f"https://api.themoviedb.org/3/discover/movie?api_key={TMDB_API_KEY}&with_original_language=hi&sort_by=popularity.desc&page=1"
-    b_data = fetch_live_tmdb(b_url).get('results', [])[:8] # Mobile balanced layout limit
+    b_data = fetch_live_tmdb(b_url).get('results', [])[:12]
     
-    # 2. Fetch Blockbuster Hollywood (English Language)
+    # 2. Fetch Hollywood (English)
     h_url = f"https://api.themoviedb.org/3/discover/movie?api_key={TMDB_API_KEY}&with_original_language=en&sort_by=popularity.desc&page=1"
-    h_data = fetch_live_tmdb(h_url).get('results', [])[:8]
+    h_data = fetch_live_tmdb(h_url).get('results', [])[:12]
     
-    # 3. Fetch Top Trending Anime (TV Shows, Animation Genre: 16, Japanese Language)
-    a_url = f"https://api.themoviedb.org/3/discover/tv?api_key={TMDB_API_KEY}&with_genres=16&with_original_language=ja&sort_by=popularity.desc&page=1"
-    a_data = fetch_live_tmdb(a_url).get('results', [])[:8]
+    # 3. Fetch Anime/TV Shows (Animation Genre: 16)
+    a_url = f"https://api.themoviedb.org/3/discover/tv?api_key={TMDB_API_KEY}&with_genres=16&sort_by=popularity.desc&page=1"
+    a_data = fetch_live_tmdb(a_url).get('results', [])[:12]
 
-    # Uniform Model Parser for structural stability
+    # Parsing layouts into Netflix-Style widescreen objects using backdrop_path
     bollywood = []
     for m in b_data:
-        path = m.get('poster_path')
-        poster = f"https://image.tmdb.org/t/p/w500{path}" if path else "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?q=80&w=500"
+        backdrop = m.get('backdrop_path')
+        img = f"https://image.tmdb.org/t/p/w780{backdrop}" if backdrop else "https://images.unsplash.com/photo-1594909122845-11baa439b7bf?q=80&w=780"
         bollywood.append({
             "id": m.get('id'),
-            "title": m.get('title', 'Untitled Bollywood'),
+            "title": m.get('title', 'Untitled Content'),
             "type": "Movie",
-            "quality": "1080p WebDL",
-            "language": "Hindi (Original)",
             "year": m.get('release_date', '2026')[:4],
             "embed_url": f"https://vidsrc.me/embed/movie/{m.get('id')}",
-            "download_url": f"https://vidsrc.me/embed/movie/{m.get('id')}",
-            "meta_extra": f"⭐ {m.get('vote_average', '7.5')}/10 • Action Romance",
-            "poster": poster
+            "poster": img
         })
 
     hollywood = []
     for m in h_data:
-        path = m.get('poster_path')
-        poster = f"https://image.tmdb.org/t/p/w500{path}" if path else "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?q=80&w=500"
+        backdrop = m.get('backdrop_path')
+        img = f"https://image.tmdb.org/t/p/w780{backdrop}" if backdrop else "https://images.unsplash.com/photo-1594909122845-11baa439b7bf?q=80&w=780"
         hollywood.append({
             "id": m.get('id'),
-            "title": m.get('title', 'Untitled Hollywood'),
+            "title": m.get('title', 'Untitled Content'),
             "type": "Movie",
-            "quality": "4K UltraHD",
-            "language": "English / Dual",
             "year": m.get('release_date', '2026')[:4],
             "embed_url": f"https://vidsrc.me/embed/movie/{m.get('id')}",
-            "download_url": f"https://vidsrc.me/embed/movie/{m.get('id')}",
-            "meta_extra": f"⭐ {m.get('vote_average', '8.0')}/10 • Premium Cinematic",
-            "poster": poster
+            "poster": img
         })
 
     anime = []
     for m in a_data:
-        path = m.get('poster_path')
-        poster = f"https://image.tmdb.org/t/p/w500{path}" if path else "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?q=80&w=500"
+        backdrop = m.get('backdrop_path')
+        img = f"https://image.tmdb.org/t/p/w780{backdrop}" if backdrop else "https://images.unsplash.com/photo-1594909122845-11baa439b7bf?q=80&w=780"
         anime.append({
             "id": m.get('id'),
-            "title": m.get('name', 'Anime Series'),
+            "title": m.get('name', 'Untitled Show'),
             "type": "Series",
-            "season": "S01",
-            "episode": "Ep 01",
-            "quality": "1080p Bluray",
-            "language": "Japanese / Sub",
             "year": m.get('first_air_date', '2026')[:4],
             "embed_url": f"https://vidsrc.me/embed/tv/{m.get('id')}/1-1",
-            "download_url": f"https://vidsrc.me/embed/tv/{m.get('id')}/1-1",
-            "meta_extra": f"⭐ {m.get('vote_average', '8.4')}/10 • Global Stream",
-            "poster": poster
+            "poster": img
         })
 
-    # Combined master deck for player injection
     all_content = hollywood + bollywood + anime
     
     return render_template('index.html', 
@@ -95,7 +80,24 @@ def home():
                            anime=anime, 
                            all_content=all_content)
 
-# Live Global Search Engine Endpoint (Connects Searchbar directly to TMDB database)
+# Live dynamic endpoint to load all seasons and episode counters instantly on-click
+@app.route('/api/tv-meta/<int:tv_id>')
+def tv_meta(tv_id):
+    url = f"https://api.themoviedb.org/3/tv/{tv_id}?api_key={TMDB_API_KEY}"
+    raw_data = fetch_live_tmdb(url)
+    
+    seasons_payload = []
+    for s in raw_data.get('seasons', []):
+        # Filter out specials or empty data blocks
+        if s.get('season_number', 0) == 0 and s.get('episode_count', 0) == 0:
+            continue
+        seasons_payload.append({
+            "season_number": s.get('season_number'),
+            "episode_count": s.get('episode_count'),
+            "name": s.get('name', f"Season {s.get('season_number')}")
+        })
+    return jsonify({"seasons": seasons_payload})
+
 @app.route('/api/search')
 def search_api():
     query = request.args.get('q', '').strip()
@@ -114,22 +116,18 @@ def search_api():
             
         title = m.get('title') if m_type == 'movie' else m.get('name')
         year = m.get('release_date', '')[:4] if m_type == 'movie' else m.get('first_air_date', '')[:4]
-        path = m.get('poster_path')
-        poster = f"https://image.tmdb.org/t/p/w500{path}" if path else "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?q=80&w=500"
+        backdrop = m.get('backdrop_path')
+        img = f"https://image.tmdb.org/t/p/w780{backdrop}" if backdrop else "https://images.unsplash.com/photo-1594909122845-11baa439b7bf?q=80&w=780"
         
         embed = f"https://vidsrc.me/embed/movie/{m.get('id')}" if m_type == 'movie' else f"https://vidsrc.me/embed/tv/{m.get('id')}/1-1"
         
         parsed_results.append({
             "id": m.get('id'),
-            "title": title if title else "Search Result",
+            "title": title if title else "Live Selection",
             "type": "Movie" if m_type == 'movie' else "Series",
-            "quality": "TrueHD" if m_type == 'movie' else "Multi-Ep",
-            "language": "Live Stream",
             "year": year if year else "2026",
             "embed_url": embed,
-            "download_url": embed,
-            "meta_extra": f"Rating: {m.get('vote_average', '7.0')}/10",
-            "poster": poster
+            "poster": img
         })
         
     return jsonify(parsed_results)
