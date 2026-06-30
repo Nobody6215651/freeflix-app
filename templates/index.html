@@ -190,7 +190,96 @@
 
     <main class="main-layout" id="theaterStage">
         <div class="video-container">
-            <iframe id="mainPlayer" src="" allowfullscreen></iframe>
+         <iframe id="mainPlayer" src="{{ hollywood[0].embed_url if hollywood else (bollywood[0].embed_url if bollywood else '') }}" allowfullscreen></iframe>
+
+<div class="server-selector" style="display: flex; gap: 12px; margin-top: 15px; margin-bottom: 15px; justify-content: center; flex-wrap: wrap;">
+    <button onclick="changeServer('vidsrc', event)" class="server-btn" style="background: var(--accent, #e50914); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px; transition: 0.2s;">Server 1 (VidSrc)</button>
+    <button onclick="changeServer('autoembed', event)" class="server-btn" style="background: #222; color: #ccc; border: 1px solid #444; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px; transition: 0.2s;">Server 2 (AutoEmbed)</button>
+    <button onclick="changeServer('embedsu', event)" class="server-btn" style="background: #222; color: #ccc; border: 1px solid #444; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px; transition: 0.2s;">Server 3 (Embed.su)</button>
+</div>
+
+<script>
+    window.currentMediaId = '';
+    window.currentMediaType = 'movie';
+
+    // Safe auto-wrapper: Yeh bina aapka code toore clicks ko track kar leta hai
+    (function initWrapper() {
+        if (typeof window.playMedia === 'function' && !window.playMedia.isWrapped) {
+            const originalPlayMedia = window.playMedia;
+            window.playMedia = function(id, type, title, year, embedUrl) {
+                window.currentMediaId = id;
+                window.currentMediaType = (type && type.toLowerCase() === 'series') ? 'tv' : 'movie';
+                originalPlayMedia(id, type, title, year, embedUrl);
+                resetServerButtons();
+            };
+            window.playMedia.isWrapped = true;
+        } else {
+            setTimeout(initWrapper, 100);
+        }
+    })();
+
+    function changeServer(serverType, event) {
+        // Agar pehli baar bina click kiye koi server badle toh auto-detect id from default src
+        if (!window.currentMediaId) {
+            const currentSrc = document.getElementById('mainPlayer').src;
+            if (currentSrc.includes('movie/')) {
+                window.currentMediaId = currentSrc.split('movie/')[1].split('/')[0].split('?')[0];
+                window.currentMediaType = 'movie';
+            } else if (currentSrc.includes('tv/')) {
+                window.currentMediaId = currentSrc.split('tv/')[1].split('/')[0].split('?')[0];
+                window.currentMediaType = 'tv';
+            }
+        }
+
+        if (!window.currentMediaId) return;
+
+        let newUrl = '';
+        if (serverType === 'vidsrc') {
+            newUrl = window.currentMediaType === 'tv' 
+                ? `https://vidsrc.me/embed/tv/${window.currentMediaId}/1-1` 
+                : `https://vidsrc.me/embed/movie/${window.currentMediaId}`;
+        } else if (serverType === 'autoembed') {
+            newUrl = window.currentMediaType === 'tv' 
+                ? `https://autoembed.to/tv/tmdb/${window.currentMediaId}-1-1` 
+                : `https://autoembed.to/movie/tmdb/${window.currentMediaId}`;
+        } else if (serverType === 'embedsu') {
+            newUrl = window.currentMediaType === 'tv' 
+                ? `https://embed.su/embed/tv/${window.currentMediaId}/1/1` 
+                : `https://embed.su/embed/movie/${window.currentMediaId}`;
+        }
+
+        if (newUrl) {
+            document.getElementById('mainPlayer').src = newUrl;
+        }
+
+        // Active button styling handle karne ke liye
+        const buttons = document.querySelectorAll('.server-btn');
+        buttons.forEach(btn => {
+            btn.style.background = '#222';
+            btn.style.color = '#ccc';
+            btn.style.borderColor = '#444';
+        });
+        if (event && event.target) {
+            event.target.style.background = 'var(--accent, #e50914)';
+            event.target.style.color = 'white';
+            event.target.style.borderColor = 'transparent';
+        }
+    }
+
+    function resetServerButtons() {
+        const buttons = document.querySelectorAll('.server-btn');
+        if (buttons.length > 0) {
+            buttons.forEach(btn => {
+                btn.style.background = '#222';
+                btn.style.color = '#ccc';
+                btn.style.borderColor = '#444';
+            });
+            buttons[0].style.background = 'var(--accent, #e50914)';
+            buttons[0].style.color = 'white';
+            buttons[0].style.borderColor = 'transparent';
+        }
+    }
+</script>  
         </div>
 
         <div class="media-details">
