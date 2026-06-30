@@ -3,104 +3,211 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Free Video Downloader & Stream</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <title>PremiumFlix - Watch Free Movies & TV Shows</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #141414; color: white; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Premium Netflix Hover Effect */
+        .movie-card {
+            transition: transform 400ms cubic-bezier(0.25, 0.8, 0.25, 1), z-index 0s linear;
+        }
+        .movie-card:hover {
+            transform: scale(1.25);
+            z-index: 50;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.9);
+            transition-delay: 300ms;
+        }
+        .hover-details {
+            display: none;
+            opacity: 0;
+        }
+        .movie-card:hover .hover-details {
+            display: block;
+            opacity: 1;
+            transition-delay: 300ms;
+        }
+    </style>
 </head>
-<body>
+<body class="overflow-x-hidden">
 
-    <header class="main-header" id="mainHeader">
-        <div class="header-logo">PremiumFlix</div>
-        <nav class="header-nav">
-            <a href="#" class="nav-link">Home</a>
-            <a href="#" class="nav-link">Movies</a>
-            <a href="#" class="nav-link">TV Shows</a>
-            <a href="#" class="nav-link">New & Popular</a>
-        </nav>
+    <header id="mainHeader" class="fixed top-0 left-0 w-full flex items-center justify-between px-6 py-4 z-50 transition-colors duration-500 bg-transparent">
+        <div class="text-red-600 text-3xl font-black tracking-wider uppercase">PremiumFlix</div>
+        
+        <div class="relative w-72">
+            <input type="text" id="searchInput" onkeyup="searchMedia()" placeholder="Search movies or series..." 
+                   class="w-full bg-black/60 text-white text-sm px-4 py-2 rounded-full border border-gray-600 focus:outline-none focus:border-red-600 transition-all">
+        </div>
     </header>
 
-    <section class="hero-billboard" style="background-image: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.1)), url('https://images.unsplash.com/photo-1616530940355-351fabd9524b?q=80&w=1600');">
-        <div class="hero-content">
-            <h1 class="hero-title">Disclosure Day</h1>
-            <p class="hero-synopsis">Experience the ultimate thrilling cinematic masterpiece of the year. Secrets will be exposed, and the truth will reshape the global order forever.</p>
-            <div class="hero-buttons">
-                <button class="btn-play" onclick="scrollToPlayer()">▶ Play</button>
-                <button class="btn-info">ℹ More Info</button>
+    <section id="heroBanner" class="relative w-full h-[85vh] bg-cover bg-center flex items-center px-12 transition-all duration-700">
+        <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent z-10"></div>
+        <div class="relative z-20 max-w-2xl mt-12">
+            <h1 id="heroTitle" class="text-4xl md:text-6xl font-extrabold mb-4 text-shadow-md">Loading Title...</h1>
+            <p id="heroOverview" class="text-gray-300 text-sm md:text-base line-clamp-3 mb-6">Loading dynamic overview from database automation framework...</p>
+            <div class="flex gap-4">
+                <button id="heroPlayBtn" class="bg-white text-black font-bold px-8 py-3 rounded hover:bg-white/80 transition transform hover:scale-105">▶ Play</button>
             </div>
         </div>
-        <div class="hero-v-gradient"></div>
+        <div class="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-[#141414] to-transparent z-10"></div>
     </section>
 
-    <main class="main-layout">
+    <main class="relative z-30 px-6 md:px-12 -mt-24 space-y-12 pb-24">
 
-        <div class="player-section-title" style="margin-bottom: 15px; color: #e5e5e5; font-size: 20px; font-weight: 700;">Now Playing</div>
-        <div class="player-container">
-            <iframe id="mainPlayer" src="{{ hollywood[0].embed_url if hollywood else (bollywood[0].embed_url if bollywood else '') }}" allowfullscreen allow="autoplay; encrypted-media; picture-in-picture"></iframe>
-        </div>
-        
-        <div class="movie-carousel-section">
-            <h2 class="row-title">Hollywood Blockbusters</h2>
-            <div class="carousel-wrapper">
-                <div class="movie-row">
-                    
-                    {% for movie in hollywood %}
-                    <div class="movie-card" onclick="loadMovie('{{ movie.embed_url }}')">
-                        <img src="{{ movie.poster_url if movie.poster_url else 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=500' }}" alt="{{ movie.title }}">
-                        <div class="card-hover-details">
-                            <div class="card-actions">
-                                <button class="action-circle btn-accent">▶</button>
-                                <button class="action-circle">+</button>
-                                <button class="action-circle">👍</button>
-                            </div>
-                            <div class="movie-card-title" style="font-weight:700; font-size:14px; margin-bottom:5px; color:#fff;">{{ movie.title }}</div>
-                            <div class="card-meta">
-                                <span class="match-pct">98% Match</span>
-                                <span class="age-rating">18+</span>
-                                <span class="duration">2h 12m</span>
-                            </div>
-                            <div class="card-genres">Action • Sci-Fi</div>
-                        </div>
-                    </div>
-                    {% else %}
-                    <p style="color: #666; padding: 10px;">No Hollywood movies found in database.</p>
-                    {% endfor %}
-
-                </div>
+        <div id="playerSection" class="hidden transition-all duration-500 bg-black/40 p-4 rounded-lg border border-zinc-800">
+            <div class="flex justify-between items-center mb-3">
+                <h3 id="playingTitle" class="text-xl font-bold text-red-500">Now Streaming</h3>
+                <button onclick="closePlayer()" class="text-gray-400 hover:text-white font-bold text-lg">✕ Close Player</button>
+            </div>
+            <div class="relative w-full aspect-video rounded overflow-hidden shadow-2xl">
+                <iframe id="apiPlayer" src="" class="absolute inset-0 w-full h-full border-0" allowfullscreen allow="autoplay; encrypted-media"></iframe>
             </div>
         </div>
 
-        <div class="movie-carousel-section">
-            <h2 class="row-title">Bollywood Hits</h2>
-            <div class="carousel-wrapper">
-                <div class="movie-row">
-                    
-                    {% for movie in bollywood %}
-                    <div class="movie-card" onclick="loadMovie('{{ movie.embed_url }}')">
-                        <img src="{{ movie.poster_url if movie.poster_url else 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=500' }}" alt="{{ movie.title }}">
-                        <div class="card-hover-details">
-                            <div class="card-actions">
-                                <button class="action-circle btn-accent">▶</button>
-                                <button class="action-circle">+</button>
-                                <button class="action-circle">👍</button>
-                            </div>
-                            <div class="movie-card-title" style="font-weight:700; font-size:14px; margin-bottom:5px; color:#fff;">{{ movie.title }}</div>
-                            <div class="card-meta">
-                                <span class="match-pct">95% Match</span>
-                                <span class="age-rating">13+</span>
-                                <span class="duration">2h 45m</span>
-                            </div>
-                            <div class="card-genres">Drama • Romance • Action</div>
-                        </div>
-                    </div>
-                    {% else %}
-                    <p style="color: #666; padding: 10px;">No Bollywood movies found in database.</p>
-                    {% endfor %}
-
-                </div>
+        <div id="searchRowContainer" class="hidden">
+            <h2 class="text-xl font-bold text-gray-400 mb-4">Search Results</h2>
+            <div class="overflow-x-auto no-scrollbar py-4">
+                <div id="searchResults" class="flex gap-4"></div>
             </div>
         </div>
 
+        <div>
+            <h2 class="text-xl font-bold text-gray-300 mb-4">Trending Movies</h2>
+            <div class="overflow-x-auto no-scrollbar py-4">
+                <div id="trendingMovies" class="flex gap-4"></div>
+            </div>
+        </div>
+
+        <div>
+            <h2 class="text-xl font-bold text-gray-300 mb-4">Popular TV Series</h2>
+            <div class="overflow-x-auto no-scrollbar py-4">
+                <div id="trendingTV" class="flex gap-4"></div>
+            </div>
+        </div>
     </main>
 
-    <script src="{{ url_for('static', filename='js/player.js') }}"></script>
+    <script>
+        // LIVE KEY INJECTED
+        const TMDB_API_KEY = "82e880c89dbf119b940e034ed32a3498"; 
+        const BASE_URL = "https://api.themoviedb.org/3";
+        const IMG_URL = "https://image.tmdb.org/t/p/w500";
+        const BACKDROP_URL = "https://image.tmdb.org/t/p/original";
+
+        // Main Lifecycle Initialization
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchTrendingMedia('movie', 'trendingMovies');
+            fetchTrendingMedia('tv', 'trendingTV');
+            setupHeroBanner();
+            
+            // Sticky Header Fade Control
+            window.addEventListener('scroll', () => {
+                const header = document.getElementById('mainHeader');
+                if (window.scrollY > 50) header.classList.add('bg-[#141414]');
+                else header.classList.remove('bg-[#141414]');
+            });
+        });
+
+        // Fetch Data Smoothly from TMDB API
+        async function fetchTrendingMedia(type, targetContainerId) {
+            try {
+                const response = await fetch(`${BASE_URL}/trending/${type}/week?api_key=${TMDB_API_KEY}`);
+                const data = await response.json();
+                renderRow(data.results, targetContainerId, type);
+            } catch (error) {
+                console.error("Failed fetching media row data:", error);
+            }
+        }
+
+        // Setup dynamic Hero Banner setup
+        async function setupHeroBanner() {
+            try {
+                const response = await fetch(`${BASE_URL}/trending/movie/day?api_key=${TMDB_API_KEY}`);
+                const data = await response.json();
+                if(data.results.length > 0) {
+                    const topMovie = data.results[Math.floor(Math.random() * 5)]; // Picks a random top movie from trending
+                    document.getElementById('heroBanner').style.backgroundImage = `linear-gradient(to bottom, rgba(0,0,0,0.4), rgba(0,0,0,0.2)), url('${BACKDROP_URL}${topMovie.backdrop_path}')`;
+                    document.getElementById('heroTitle').innerText = topMovie.title || topMovie.name;
+                    document.getElementById('heroOverview').innerText = topMovie.overview;
+                    document.getElementById('heroPlayBtn').onclick = () => startStreaming('movie', topMovie.id, topMovie.title);
+                }
+            } catch (e) { console.error("Hero setup failed", e); }
+        }
+
+        // Render Cards into rows with dynamic hover injection
+        function renderRow(items, containerId, type) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            
+            items.forEach(item => {
+                if(!item.poster_path) return;
+                
+                const title = item.title || item.name;
+                const releaseYear = (item.release_date || item.first_air_date || '').split('-')[0] || '2026';
+                const rating = item.vote_average ? item.vote_average.toFixed(1) : '7.5';
+
+                const card = document.createElement('div');
+                card.className = "movie-card relative flex-shrink-0 w-48 aspect-[16/9] bg-zinc-900 rounded cursor-pointer overflow-visible";
+                card.onclick = () => startStreaming(type, item.id, title);
+                
+                card.innerHTML = `
+                    <img src="${IMG_URL}${item.backdrop_path ? item.backdrop_path : item.poster_path}" class="w-full h-full object-cover rounded shadow-md">
+                    <div class="hover-details absolute top-[98%] left-0 w-full bg-zinc-900 p-3 rounded-b-md shadow-2xl z-50">
+                        <div class="flex gap-2 mb-2">
+                            <span class="text-green-400 font-bold text-xs">${Math.floor(rating * 10)}% Match</span>
+                            <span class="border border-gray-500 text-[10px] px-1 text-gray-300 rounded">HD</span>
+                            <span class="text-gray-400 text-xs">${releaseYear}</span>
+                        </div>
+                        <div class="text-xs font-bold truncate text-white">${title}</div>
+                        <div class="text-[10px] text-gray-400 mt-1">⭐ ${rating} / 10</div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Multi-Server Dynamic Router Injection
+        function startStreaming(type, id, title) {
+            const playerSection = document.getElementById('playerSection');
+            const iframe = document.getElementById('apiPlayer');
+            document.getElementById('playingTitle').innerText = `Now Streaming: ${title}`;
+            
+            // EXACT PRESTIGE SERVER METHOD (VidSrc API Routing)
+            let embedUrl = "";
+            if (type === 'movie' || type === 'media') {
+                embedUrl = `https://vidsrc.to/embed/movie/${id}`;
+            } else {
+                embedUrl = `https://vidsrc.to/embed/tv/${id}/1/1`;
+            }
+            
+            iframe.src = embedUrl;
+            playerSection.classList.remove('hidden');
+            playerSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        function closePlayer() {
+            document.getElementById('playerSection').classList.add('hidden');
+            document.getElementById('apiPlayer').src = "";
+        }
+
+        // Live Real-Time Search Bar Filter
+        async function searchMedia() {
+            const query = document.getElementById('searchInput').value.trim();
+            const container = document.getElementById('searchRowContainer');
+            if(query.length < 3) {
+                container.classList.add('hidden');
+                return;
+            }
+            try {
+                const res = await fetch(`${BASE_URL}/search/multi?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}`);
+                const data = await res.json();
+                if(data.results && data.results.length > 0) {
+                    container.classList.remove('hidden');
+                    renderRow(data.results, 'searchResults', 'movie');
+                }
+            } catch(e) { console.error("Search failed", e); }
+        }
+    </script>
 </body>
 </html>
