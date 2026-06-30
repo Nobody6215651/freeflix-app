@@ -15,23 +15,24 @@ def fetch_live_tmdb(url):
         return {"results": []}
 
 def get_homepage_content():
-    """Fetches high-quality home rows safely with strict 1080p branding and official text posters"""
-    # Bollywood / Trending Movies Data Fetch
+    """Fetches high-quality horizontal backdrops for genuine Netflix-style layout"""
+    # Bollywood Data
     b_url = f"https://api.themoviedb.org/3/discover/movie?api_key={TMDB_API_KEY}&with_original_language=hi&sort_by=popularity.desc&page=1"
     b_data = fetch_live_tmdb(b_url).get('results', [])[:12]
     
-    # Hollywood Movies Data Fetch
+    # Hollywood Data
     h_url = f"https://api.themoviedb.org/3/discover/movie?api_key={TMDB_API_KEY}&with_original_language=en&sort_by=popularity.desc&page=1"
     h_data = fetch_live_tmdb(h_url).get('results', [])[:12]
     
-    # Hollywood All-Time Popular Series Data Fetch (English TV Shows)
+    # Hollywood TV Series Data
     a_url = f"https://api.themoviedb.org/3/discover/tv?api_key={TMDB_API_KEY}&with_original_language=en&sort_by=popularity.desc&page=1"
     a_data = fetch_live_tmdb(a_url).get('results', [])[:12]
 
     bollywood = []
     for m in b_data:
-        poster = m.get('poster_path')
-        img = f"https://image.tmdb.org/t/p/w780{poster}" if poster else "https://images.unsplash.com/photo-1594909122845-11baa439b7bf?q=80&w=780"
+        # LANDSCAPE FIX: Fetching widescreen backdrop instead of vertical poster
+        bg_path = m.get('backdrop_path') or m.get('poster_path')
+        img = f"https://image.tmdb.org/t/p/w780{bg_path}" if bg_path else "https://images.unsplash.com/photo-1594909122845-11baa439b7bf?q=80&w=780"
         bollywood.append({
             "id": m.get('id'),
             "title": m.get('title', 'Live Title'),
@@ -44,8 +45,9 @@ def get_homepage_content():
 
     hollywood = []
     for m in h_data:
-        poster = m.get('poster_path')
-        img = f"https://image.tmdb.org/t/p/w780{poster}" if poster else "https://images.unsplash.com/photo-1594909122845-11baa439b7bf?q=80&w=780"
+        # LANDSCAPE FIX: Fetching widescreen backdrop instead of vertical poster
+        bg_path = m.get('backdrop_path') or m.get('poster_path')
+        img = f"https://image.tmdb.org/t/p/w780{bg_path}" if bg_path else "https://images.unsplash.com/photo-1594909122845-11baa439b7bf?q=80&w=780"
         hollywood.append({
             "id": m.get('id'),
             "title": m.get('title', 'Live Title'),
@@ -58,8 +60,9 @@ def get_homepage_content():
 
     anime = []
     for m in a_data:
-        poster = m.get('poster_path')
-        img = f"https://image.tmdb.org/t/p/w780{poster}" if poster else "https://images.unsplash.com/photo-1594909122845-11baa439b7bf?q=80&w=780"
+        # LANDSCAPE FIX: Fetching widescreen backdrop instead of vertical poster
+        bg_path = m.get('backdrop_path') or m.get('poster_path')
+        img = f"https://image.tmdb.org/t/p/w780{bg_path}" if bg_path else "https://images.unsplash.com/photo-1594909122845-11baa439b7bf?q=80&w=780"
         anime.append({
             "id": m.get('id'),
             "title": m.get('name', 'Live Show'),
@@ -73,7 +76,6 @@ def get_homepage_content():
     return bollywood, hollywood, anime
 
 def get_tv_metadata(tv_id):
-    """Processes clean season metadata without modifying structure"""
     url = f"https://api.themoviedb.org/3/tv/{tv_id}?api_key={TMDB_API_KEY}"
     raw_data = fetch_live_tmdb(url)
     seasons_payload = []
@@ -88,7 +90,6 @@ def get_tv_metadata(tv_id):
     return seasons_payload
 
 def search_titles(query):
-    """Fast response stream router for official search engine"""
     if not query:
         return []
     encoded_query = urllib.parse.quote(query)
@@ -104,8 +105,8 @@ def search_titles(query):
         title = m.get('title') if m_type == 'movie' else m.get('name')
         year = m.get('release_date', '')[:4] if m_type == 'movie' else m.get('first_air_date', '')[:4]
         
-        poster = m.get('poster_path')
-        img = f"https://image.tmdb.org/t/p/w780{poster}" if poster else "https://images.unsplash.com/photo-1594909122845-11baa439b7bf?q=80&w=780"
+        bg_path = m.get('backdrop_path') or m.get('poster_path')
+        img = f"https://image.tmdb.org/t/p/w780{bg_path}" if bg_path else "https://images.unsplash.com/photo-1594909122845-11baa439b7bf?q=80&w=780"
         embed = f"https://vidsrc.me/embed/movie/{m.get('id')}" if m_type == 'movie' else f"https://vidsrc.me/embed/tv/{m.get('id')}/1-1"
         
         parsed_results.append({
