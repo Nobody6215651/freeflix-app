@@ -190,13 +190,14 @@
     </div>
 
     <main class="main-layout" id="theaterStage">
-        <div class="video-container">
-         <iframe id="mainPlayer" src="{{ hollywood[0].embed_url if hollywood else (bollywood[0].embed_url if bollywood else '') }}" allowfullscreen></iframe>
+      <div class="player-container">
+    <iframe id="mainPlayer" src="{{ hollywood[0].embed_url if hollywood else (bollywood[0].embed_url if bollywood else '') }}" allowfullscreen></iframe>
+</div>
 
-<div class="server-selector" style="display: flex; gap: 12px; margin-top: 15px; margin-bottom: 15px; justify-content: center; flex-wrap: wrap;">
-    <button onclick="changeServer('vidsrc', event)" class="server-btn" style="background: var(--accent, #e50914); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px; transition: 0.2s;">Server 1 (VidSrc)</button>
-    <button onclick="changeServer('autoembed', event)" class="server-btn" style="background: #222; color: #ccc; border: 1px solid #444; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px; transition: 0.2s;">Server 2 (AutoEmbed)</button>
-    <button onclick="changeServer('embedsu', event)" class="server-btn" style="background: #222; color: #ccc; border: 1px solid #444; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px; transition: 0.2s;">Server 3 (Embed.su)</button>
+<div class="server-selector">
+    <button onclick="switchStreamingServer('vidsrc', event)" class="srv-btn active">Server 1 (VidSrc)</button>
+    <button onclick="switchStreamingServer('autoembed', event)" class="srv-btn">Server 2 (AutoEmbed)</button>
+    <button onclick="switchStreamingServer('embedsu', event)" class="srv-btn">Server 3 (Embed.su)</button>
 </div>
 
 <script>
@@ -463,5 +464,6 @@
             if(!searchBox.contains(e.target) && !panel.contains(e.target)) { panel.style.display = 'none'; }
         });
     </script>
+    <script src="{{ url_for('static', filename='js/player.js') }}"></script>
 </body>
 </html>
