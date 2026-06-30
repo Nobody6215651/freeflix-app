@@ -5,7 +5,7 @@ import urllib.parse
 TMDB_API_KEY = "82e880c89dbf119b940e034ed32a3498"
 
 def fetch_live_tmdb(url):
-    """Core Core Native Fetcher Optimized for High Speed Performance"""
+    """Core Native Fetcher Optimized for High Speed Performance"""
     try:
         req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0 PremiumFlix/1.0'})
         with urllib.request.urlopen(req, timeout=5) as response:
@@ -16,18 +16,20 @@ def fetch_live_tmdb(url):
 
 def get_homepage_content():
     """Fetches high-quality home rows safely with strict 1080p branding and official text posters"""
+    # Bollywood / Trending Movies Data Fetch
     b_url = f"https://api.themoviedb.org/3/discover/movie?api_key={TMDB_API_KEY}&with_original_language=hi&sort_by=popularity.desc&page=1"
     b_data = fetch_live_tmdb(b_url).get('results', [])[:12]
     
+    # Hollywood Movies Data Fetch
     h_url = f"https://api.themoviedb.org/3/discover/movie?api_key={TMDB_API_KEY}&with_original_language=en&sort_by=popularity.desc&page=1"
     h_data = fetch_live_tmdb(h_url).get('results', [])[:12]
     
-    a_url = f"https://api.themoviedb.org/3/discover/tv?api_key={TMDB_API_KEY}&with_genres=16&sort_by=popularity.desc&page=1"
+    # Hollywood All-Time Popular Series Data Fetch (English TV Shows)
+    a_url = f"https://api.themoviedb.org/3/discover/tv?api_key={TMDB_API_KEY}&with_original_language=en&sort_by=popularity.desc&page=1"
     a_data = fetch_live_tmdb(a_url).get('results', [])[:12]
 
     bollywood = []
     for m in b_data:
-        # UPGRADED: Using official text poster instead of blank backdrop
         poster = m.get('poster_path')
         img = f"https://image.tmdb.org/t/p/w780{poster}" if poster else "https://images.unsplash.com/photo-1594909122845-11baa439b7bf?q=80&w=780"
         bollywood.append({
@@ -42,7 +44,6 @@ def get_homepage_content():
 
     hollywood = []
     for m in h_data:
-        # UPGRADED: Using official text poster instead of blank backdrop
         poster = m.get('poster_path')
         img = f"https://image.tmdb.org/t/p/w780{poster}" if poster else "https://images.unsplash.com/photo-1594909122845-11baa439b7bf?q=80&w=780"
         hollywood.append({
@@ -57,7 +58,6 @@ def get_homepage_content():
 
     anime = []
     for m in a_data:
-        # UPGRADED: Using official text poster instead of blank backdrop
         poster = m.get('poster_path')
         img = f"https://image.tmdb.org/t/p/w780{poster}" if poster else "https://images.unsplash.com/photo-1594909122845-11baa439b7bf?q=80&w=780"
         anime.append({
@@ -104,7 +104,6 @@ def search_titles(query):
         title = m.get('title') if m_type == 'movie' else m.get('name')
         year = m.get('release_date', '')[:4] if m_type == 'movie' else m.get('first_air_date', '')[:4]
         
-        # UPGRADED: Using official text poster instead of blank backdrop for search items
         poster = m.get('poster_path')
         img = f"https://image.tmdb.org/t/p/w780{poster}" if poster else "https://images.unsplash.com/photo-1594909122845-11baa439b7bf?q=80&w=780"
         embed = f"https://vidsrc.me/embed/movie/{m.get('id')}" if m_type == 'movie' else f"https://vidsrc.me/embed/tv/{m.get('id')}/1-1"
